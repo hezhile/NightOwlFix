@@ -9,6 +9,202 @@
         button { padding: 15px 30px; font-size: 18px; background: #ff6b6b; color: white; border: none; border-radius: 8px; cursor: pointer; }
         button:hover { background: #ff5252; }
         #result { margin-top: 30px; padding: 20px; background: #e8f5e8; border-radius: 8px; display: none; }
+        
+        /* 睡眠提醒模态框样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease-in-out;
+        }
+        
+        .modal-content h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .modal-content p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .sleep-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .sleep-btn:hover {
+            background: #45a049;
+        }
+        
+        .later-btn {
+            background: #ff9800;
+            color: white;
+            padding: 10px 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: background 0.3s ease;
+        }
+        
+        .later-btn:hover {
+            background: #e68900;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @media (max-width: 480px) {
+            .modal-content {
+                padding: 20px;
+                margin: 20px;
+            }
+            
+            .modal-content h2 {
+                font-size: 20px;
+            }
+            
+            .modal-content p {
+                font-size: 14px;
+            }
+        }
+    </style>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f0f8ff; }
+        button { padding: 15px 30px; font-size: 18px; background: #ff6b6b; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        button:hover { background: #ff5252; }
+        #result { margin-top: 30px; padding: 20px; background: #e8f5e8; border-radius: 8px; display: none; }
+        
+        /* 睡眠提醒模态框样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease-in-out;
+        }
+        
+        .modal-content h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .modal-content p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .sleep-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .sleep-btn:hover {
+            background: #45a049;
+        }
+        
+        .later-btn {
+            background: #ff9800;
+            color: white;
+            padding: 10px 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: background 0.3s ease;
+        }
+        
+        .later-btn:hover {
+            background: #e68900;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @media (max-width: 480px) {
+            .modal-content {
+                padding: 20px;
+                margin: 20px;
+            }
+            
+            .modal-content h2 {
+                font-size: 20px;
+            }
+            
+            .modal-content p {
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
