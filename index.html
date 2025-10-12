@@ -5,10 +5,162 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>睡眠鼓励器</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f0f8ff; }
-        button { padding: 15px 30px; font-size: 18px; background: #ff6b6b; color: white; border: none; border-radius: 8px; cursor: pointer; }
-        button:hover { background: #ff5252; }
-        #result { margin-top: 30px; padding: 20px; background: #e8f5e8; border-radius: 8px; display: none; }
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            padding: 50px; 
+            background: #f0f8ff;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        button { 
+            padding: 15px 30px; 
+            font-size: 18px; 
+            background: #ff6b6b; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover { 
+            background: #ff5252;
+            transform: translateY(-2px);
+        }
+        
+        .sleep-now-btn {
+            background: #4CAF50;
+        }
+        
+        .sleep-now-btn:hover {
+            background: #45a049;
+        }
+        
+        #result { 
+            margin-top: 30px; 
+            padding: 20px; 
+            background: #e8f5e8; 
+            border-radius: 8px; 
+            display: none; 
+        }
+        
+        /* 时间选择组件样式 */
+        .time-selector {
+            margin: 30px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .time-selector h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .time-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .time-option {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .time-option:hover {
+            background: #e0e0e0;
+        }
+        
+        .time-option.selected {
+            background: #2196F3;
+            color: white;
+            border-color: #2196F3;
+        }
+        
+        /* 记录显示区域样式 */
+        .records-section {
+            margin-top: 40px;
+            text-align: left;
+        }
+        
+        .records-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .pagination {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .pagination button {
+            padding: 8px 15px;
+            font-size: 14px;
+            background: #2196F3;
+        }
+        
+        .pagination button:hover {
+            background: #1976D2;
+        }
+        
+        .pagination button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .records-table th,
+        .records-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .records-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .records-table tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .date-section {
+            margin-bottom: 30px;
+        }
+        
+        .date-header {
+            background: #2196F3;
+            color: white;
+            padding: 10px;
+            font-weight: bold;
+        }
         
         /* 睡眠提醒模态框样式 */
         .modal-overlay {
@@ -49,8 +201,8 @@
             line-height: 1.5;
         }
         
-        .sleep-btn {
-            background: #4CAF50;
+        .acknowledge-btn {
+            background: #2196F3;
             color: white;
             padding: 15px 30px;
             font-size: 18px;
@@ -60,24 +212,8 @@
             transition: background 0.3s ease;
         }
         
-        .sleep-btn:hover {
-            background: #45a049;
-        }
-        
-        .later-btn {
-            background: #ff9800;
-            color: white;
-            padding: 10px 20px;
-            font-size: 14px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-left: 10px;
-            transition: background 0.3s ease;
-        }
-        
-        .later-btn:hover {
-            background: #e68900;
+        .acknowledge-btn:hover {
+            background: #1976D2;
         }
         
         @keyframes fadeIn {
@@ -90,18 +226,24 @@
             to { transform: translateY(0); opacity: 1; }
         }
         
-        @media (max-width: 480px) {
-            .modal-content {
+        @media (max-width: 600px) {
+            .button-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .time-options {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .records-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            body {
                 padding: 20px;
-                margin: 20px;
-            }
-            
-            .modal-content h2 {
-                font-size: 20px;
-            }
-            
-            .modal-content p {
-                font-size: 14px;
             }
         }
     </style>
@@ -109,32 +251,116 @@
 <body>
     <h1>睡眠鼓励器</h1>
     <p>当你不想睡觉时，点击下面按钮获取鼓励！</p>
-    <button id="noSleepBtn">我不想睡觉</button>
+    
+    <div class="button-container">
+        <button id="noSleepBtn">等下再睡</button>
+        <button id="sleepNowBtn" class="sleep-now-btn">现在去睡了</button>
+    </div>
+    
     <div id="result"></div>
+
+    <!-- 时间选择组件 -->
+    <div class="time-selector">
+        <h3>选择提醒时间</h3>
+        <div class="time-options">
+            <div class="time-option" data-minutes="3">3分钟</div>
+            <div class="time-option" data-minutes="5">5分钟</div>
+            <div class="time-option" data-minutes="15">15分钟</div>
+        </div>
+    </div>
+
+    <!-- 记录显示区域 -->
+    <div class="records-section">
+        <div class="records-header">
+            <h3>睡眠记录</h3>
+            <div class="pagination">
+                <button id="prevPage">上一页</button>
+                <span id="pageInfo">第 1 页</span>
+                <button id="nextPage">下一页</button>
+            </div>
+        </div>
+        <div id="recordsContainer"></div>
+    </div>
 
     <!-- 睡眠提醒模态框 -->
     <div id="sleepModal" class="modal-overlay">
         <div class="modal-content">
             <h2>🌙 睡眠提醒</h2>
-            <p>现在已经很晚了，睡觉了没有？<br>良好的睡眠有助于身体健康！</p>
-            <button id="sleptBtn" class="sleep-btn">我睡了</button>
-            <button id="laterBtn" class="later-btn">待会儿再说</button>
+            <p id="reminderMessage">现在已经很晚了，睡觉了没有？<br>良好的睡眠有助于身体健康！</p>
+            <button id="acknowledgeBtn" class="acknowledge-btn">知道了</button>
         </div>
     </div>
 
     <script>
-        // 原有的睡眠鼓励功能
-        const btn = document.getElementById('noSleepBtn');
-        const resultDiv = document.getElementById('result');
+        // 全局变量
+        let selectedReminderTime = 5; // 默认5分钟
+        let currentPage = 1;
+        const recordsPerPage = 10;
+        let reminderTimeout;
 
-        btn.addEventListener('click', async () => {
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+            loadRecords();
+            setupEventListeners();
+        });
+
+        // 初始化应用
+        function initializeApp() {
+            // 记录用户首次打开网页
+            recordEvent('首次打开网页');
+            
+            // 恢复选择的提醒时间
+            const savedTime = localStorage.getItem('selectedReminderTime');
+            if (savedTime) {
+                selectedReminderTime = parseInt(savedTime);
+                updateTimeSelection(selectedReminderTime);
+            }
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 等下再睡按钮
+            document.getElementById('noSleepBtn').addEventListener('click', handleNoSleep);
+            
+            // 现在去睡了按钮
+            document.getElementById('sleepNowBtn').addEventListener('click', handleSleepNow);
+            
+            // 时间选择选项
+            document.querySelectorAll('.time-option').forEach(option => {
+                option.addEventListener('click', handleTimeSelection);
+            });
+            
+            // 分页按钮
+            document.getElementById('prevPage').addEventListener('click', () => changePage(-1));
+            document.getElementById('nextPage').addEventListener('click', () => changePage(1));
+            
+            // 模态框按钮
+            document.getElementById('acknowledgeBtn').addEventListener('click', hideSleepReminder);
+            
+            // 点击模态框外部关闭
+            document.getElementById('sleepModal').addEventListener('click', (e) => {
+                if (e.target.id === 'sleepModal') {
+                    hideSleepReminder();
+                }
+            });
+        }
+
+        // 处理"等下再睡"按钮点击
+        async function handleNoSleep() {
+            const btn = document.getElementById('noSleepBtn');
+            const resultDiv = document.getElementById('result');
+
+            // 记录事件
+            recordEvent('用户说不想睡');
+
             // 获取用户当地时间
             const now = new Date();
             const localTime = now.toLocaleTimeString('zh-CN', { 
                 hour: '2-digit', 
                 minute: '2-digit',
                 hour12: false 
-            });  // e.g., "23:30"
+            });
 
             btn.textContent = '加载中...';
             btn.disabled = true;
@@ -151,144 +377,230 @@
                 const data = await response.json();
                 resultDiv.innerHTML = `<strong>AI鼓励：</strong><br>${data.message}`;
                 resultDiv.style.display = 'block';
+                
+                // 设置提醒
+                scheduleReminder();
             } catch (error) {
                 resultDiv.innerHTML = `<strong>出错：</strong> ${error.message}`;
                 resultDiv.style.display = 'block';
             }
 
-            btn.textContent = '我不想睡觉';
+            btn.textContent = '等下再睡';
             btn.disabled = false;
-        });
-
-        // 睡眠提醒系统
-        const sleepModal = document.getElementById('sleepModal');
-        const sleptBtn = document.getElementById('sleptBtn');
-        const laterBtn = document.getElementById('laterBtn');
-        
-        let reminderInterval;
-
-        // 检查是否需要显示睡眠提醒
-        function checkTimeForReminders(isVisibilityChange = false) {
-            const now = new Date();
-            const currentHour = now.getHours();
-            const currentMinute = now.getMinutes();
-            const currentTime = currentHour * 60 + currentMinute; // 转换为分钟
-            
-            // 检查是否在23:30之后
-            const sleepTimeThreshold = 23 * 60 + 30; // 23:30
-            
-            // 获取今天的日期字符串
-            const today = now.toDateString();
-            
-            // 检查localStorage中是否已经标记为今天已睡
-            const hasSleptToday = localStorage.getItem(`slept_${today}`);
-            
-            if (currentTime >= sleepTimeThreshold && !hasSleptToday) {
-                // 如果是23:30之后且今天还没有标记为已睡，启动提醒系统
-                startReminderInterval();
-                
-                // 如果是用户切换回页面，检查是否需要立即显示提醒
-                if (isVisibilityChange) {
-                    const lastReminderTime = localStorage.getItem('lastReminderTime');
-                    const lastPageVisitTime = localStorage.getItem('lastPageVisitTime');
-                    const currentTimeMs = Date.now();
-                    
-                    // 如果距离上次提醒超过10分钟（600000毫秒），则显示提醒
-                    if (!lastReminderTime || (currentTimeMs - parseInt(lastReminderTime) > 600000)) {
-                        showSleepReminder();
-                    }
-                }
-                
-                // 更新页面访问时间
-                localStorage.setItem('lastPageVisitTime', Date.now().toString());
-            } else {
-                // 否则停止提醒系统
-                stopReminderInterval();
-            }
         }
 
-        // 显示睡眠提醒模态框
-        function showSleepReminder() {
-            sleepModal.style.display = 'flex';
+        // 处理"现在去睡了"按钮点击
+        function handleSleepNow() {
+            recordEvent('用户睡觉了');
             
-            // 记录本次提醒时间
-            localStorage.setItem('lastReminderTime', Date.now().toString());
-        }
-
-        // 隐藏睡眠提醒模态框
-        function hideSleepReminder() {
-            sleepModal.style.display = 'none';
-        }
-
-        // 启动提醒间隔
-        function startReminderInterval() {
-            // 如果已经有间隔在运行，先停止
-            if (reminderInterval) {
-                clearInterval(reminderInterval);
+            // 清除现有的提醒
+            if (reminderTimeout) {
+                clearTimeout(reminderTimeout);
             }
             
-            // 不再立即显示提醒，只启动定时器
-            reminderInterval = setInterval(showSleepReminder, 900000);
-        }
-
-        // 停止提醒间隔
-        function stopReminderInterval() {
-            if (reminderInterval) {
-                clearInterval(reminderInterval);
-                reminderInterval = null;
-            }
-            hideSleepReminder();
-        }
-
-        // 标记用户已睡
-        function markAsSlept() {
+            // 标记今天已睡
             const today = new Date().toDateString();
             localStorage.setItem(`slept_${today}`, 'true');
-            stopReminderInterval();
             
-            // 清理时间记录
-            localStorage.removeItem('lastReminderTime');
-            localStorage.removeItem('lastPageVisitTime');
+            // 显示确认消息
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<strong>晚安！</strong><br>好好休息，做个好梦！`;
+            resultDiv.style.display = 'block';
             
-            // 显示友好的确认消息
-            const modalContent = sleepModal.querySelector('.modal-content');
-            modalContent.innerHTML = `
-                <h2>😴 晚安！</h2>
-                <p>好好休息，做个好梦！<br>明天见！</p>
-                <button onclick="hideSleepReminder()" class="sleep-btn">好的</button>
-            `;
+            // 3秒后隐藏消息
+            setTimeout(() => {
+                resultDiv.style.display = 'none';
+            }, 3000);
         }
 
-        // 事件监听器
-        sleptBtn.addEventListener('click', markAsSlept);
-        
-        laterBtn.addEventListener('click', () => {
-            hideSleepReminder();
-            // 用户点击"待会儿再说"，隐藏模态框但保持间隔运行
-        });
+        // 处理时间选择
+        function handleTimeSelection(e) {
+            const minutes = parseInt(e.target.dataset.minutes);
+            selectedReminderTime = minutes;
+            localStorage.setItem('selectedReminderTime', minutes);
+            updateTimeSelection(minutes);
+        }
 
-        // 点击模态框外部关闭
-        sleepModal.addEventListener('click', (e) => {
-            if (e.target === sleepModal) {
-                hideSleepReminder();
+        // 更新时间选择UI
+        function updateTimeSelection(selectedMinutes) {
+            document.querySelectorAll('.time-option').forEach(option => {
+                option.classList.remove('selected');
+                if (parseInt(option.dataset.minutes) === selectedMinutes) {
+                    option.classList.add('selected');
+                }
+            });
+        }
+
+        // 设置提醒
+        function scheduleReminder() {
+            // 清除现有提醒
+            if (reminderTimeout) {
+                clearTimeout(reminderTimeout);
             }
-        });
-
-        // 页面加载时初始化睡眠提醒系统
-        document.addEventListener('DOMContentLoaded', () => {
-            // 立即检查一次时间
-            checkTimeForReminders();
             
-            // 每分钟检查一次时间，确保在跨过23:30时能启动提醒
-            setInterval(checkTimeForReminders, 60000);
-        });
+            // 记录提醒事件
+            recordEvent('提醒用户睡觉');
+            
+            // 设置新的提醒
+            reminderTimeout = setTimeout(() => {
+                showSleepReminder();
+            }, selectedReminderTime * 60 * 1000);
+        }
 
-        // 页面可见性变化时也检查时间（比如用户切换标签页回来）
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                checkTimeForReminders(true); // 传入true表示这是可见性变化触发的检查
+        // 显示睡眠提醒
+        function showSleepReminder() {
+            const modal = document.getElementById('sleepModal');
+            const message = document.getElementById('reminderMessage');
+            
+            message.textContent = `已经过了${selectedReminderTime}分钟，该睡觉了！良好的睡眠有助于身体健康！`;
+            modal.style.display = 'flex';
+            
+            // 记录提醒显示事件
+            recordEvent('提醒用户睡觉');
+        }
+
+        // 隐藏睡眠提醒
+        function hideSleepReminder() {
+            document.getElementById('sleepModal').style.display = 'none';
+        }
+
+        // 记录事件
+        function recordEvent(eventType) {
+            const now = new Date();
+            const event = {
+                type: eventType,
+                timestamp: now.getTime(),
+                date: now.toDateString(),
+                time: now.toLocaleTimeString('zh-CN')
+            };
+            
+            // 获取现有记录
+            let records = JSON.parse(localStorage.getItem('sleepRecords') || '[]');
+            
+            // 添加新记录
+            records.push(event);
+            
+            // 保存记录
+            localStorage.setItem('sleepRecords', JSON.stringify(records));
+            
+            // 刷新显示
+            loadRecords();
+        }
+
+        // 加载记录
+        function loadRecords() {
+            const records = JSON.parse(localStorage.getItem('sleepRecords') || '[]');
+            
+            // 按日期分组
+            const groupedRecords = groupRecordsByDate(records);
+            
+            // 获取日期列表并排序
+            const dates = Object.keys(groupedRecords).sort((a, b) => new Date(b) - new Date(a));
+            
+            // 分页
+            const totalPages = Math.ceil(dates.length / recordsPerPage);
+            const startIndex = (currentPage - 1) * recordsPerPage;
+            const endIndex = startIndex + recordsPerPage;
+            const pageDates = dates.slice(startIndex, endIndex);
+            
+            // 显示记录
+            displayRecords(groupedRecords, pageDates);
+            
+            // 更新分页信息
+            updatePagination(currentPage, totalPages);
+        }
+
+        // 按日期分组记录
+        function groupRecordsByDate(records) {
+            return records.reduce((groups, record) => {
+                const date = record.date;
+                if (!groups[date]) {
+                    groups[date] = [];
+                }
+                groups[date].push(record);
+                return groups;
+            }, {});
+        }
+
+        // 显示记录
+        function displayRecords(groupedRecords, dates) {
+            const container = document.getElementById('recordsContainer');
+            container.innerHTML = '';
+            
+            dates.forEach(date => {
+                const dateSection = document.createElement('div');
+                dateSection.className = 'date-section';
+                
+                // 创建日期标题
+                const dateHeader = document.createElement('div');
+                dateHeader.className = 'date-header';
+                dateHeader.textContent = formatDate(date);
+                dateSection.appendChild(dateHeader);
+                
+                // 创建记录表格
+                const table = document.createElement('table');
+                table.className = 'records-table';
+                
+                // 创建表头
+                const thead = document.createElement('thead');
+                thead.innerHTML = `
+                    <tr>
+                        <th>事件</th>
+                        <th>时间</th>
+                    </tr>
+                `;
+                table.appendChild(thead);
+                
+                // 创建表体
+                const tbody = document.createElement('tbody');
+                groupedRecords[date].forEach(record => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${record.type}</td>
+                        <td>${record.time}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                table.appendChild(tbody);
+                
+                dateSection.appendChild(table);
+                container.appendChild(dateSection);
+            });
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            if (date.toDateString() === today.toDateString()) {
+                return '今天';
+            } else if (date.toDateString() === yesterday.toDateString()) {
+                return '昨天';
+            } else {
+                return date.toLocaleDateString('zh-CN', {
+                    month: 'long',
+                    day: 'numeric',
+                    weekday: 'long'
+                });
             }
-        });
+        }
+
+        // 更新分页信息
+        function updatePagination(currentPage, totalPages) {
+            document.getElementById('pageInfo').textContent = `第 ${currentPage} 页`;
+            document.getElementById('prevPage').disabled = currentPage <= 1;
+            document.getElementById('nextPage').disabled = currentPage >= totalPages;
+        }
+
+        // 切换页面
+        function changePage(direction) {
+            currentPage += direction;
+            if (currentPage < 1) currentPage = 1;
+            loadRecords();
+        }
     </script>
 </body>
 </html>
