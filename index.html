@@ -168,7 +168,7 @@
         let reminderInterval;
 
         // 检查是否需要显示睡眠提醒
-        function checkTimeForReminders() {
+        function checkTimeForReminders(isVisibilityChange = false) {
             const now = new Date();
             const currentHour = now.getHours();
             const currentMinute = now.getMinutes();
@@ -186,6 +186,21 @@
             if (currentTime >= sleepTimeThreshold && !hasSleptToday) {
                 // 如果是23:30之后且今天还没有标记为已睡，启动提醒系统
                 startReminderInterval();
+                
+                // 如果是用户切换回页面，检查是否需要立即显示提醒
+                if (isVisibilityChange) {
+                    const lastReminderTime = localStorage.getItem('lastReminderTime');
+                    const lastPageVisitTime = localStorage.getItem('lastPageVisitTime');
+                    const currentTimeMs = Date.now();
+                    
+                    // 如果距离上次提醒超过10分钟（600000毫秒），则显示提醒
+                    if (!lastReminderTime || (currentTimeMs - parseInt(lastReminderTime) > 600000)) {
+                        showSleepReminder();
+                    }
+                }
+                
+                // 更新页面访问时间
+                localStorage.setItem('lastPageVisitTime', Date.now().toString());
             } else {
                 // 否则停止提醒系统
                 stopReminderInterval();
@@ -195,6 +210,9 @@
         // 显示睡眠提醒模态框
         function showSleepReminder() {
             sleepModal.style.display = 'flex';
+            
+            // 记录本次提醒时间
+            localStorage.setItem('lastReminderTime', Date.now().toString());
         }
 
         // 隐藏睡眠提醒模态框
@@ -209,10 +227,7 @@
                 clearInterval(reminderInterval);
             }
             
-            // 立即显示一次提醒
-            showSleepReminder();
-            
-            // 然后每15分钟显示一次提醒 (900000毫秒)
+            // 不再立即显示提醒，只启动定时器
             reminderInterval = setInterval(showSleepReminder, 900000);
         }
 
@@ -230,6 +245,10 @@
             const today = new Date().toDateString();
             localStorage.setItem(`slept_${today}`, 'true');
             stopReminderInterval();
+            
+            // 清理时间记录
+            localStorage.removeItem('lastReminderTime');
+            localStorage.removeItem('lastPageVisitTime');
             
             // 显示友好的确认消息
             const modalContent = sleepModal.querySelector('.modal-content');
@@ -267,7 +286,7 @@
         // 页面可见性变化时也检查时间（比如用户切换标签页回来）
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
-                checkTimeForReminders();
+                checkTimeForReminders(true); // 传入true表示这是可见性变化触发的检查
             }
         });
     </script>
