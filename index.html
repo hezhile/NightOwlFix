@@ -5,13 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>睡眠鼓励器</title>
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            text-align: center; 
-            padding: 50px; 
-            background: #f0f8ff;
-            max-width: 800px;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 900px;
             margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        h1::before {
+            content: '🌙 ';
         }
         
         .button-container {
@@ -21,36 +40,62 @@
             margin: 30px 0;
         }
         
-        button { 
-            padding: 15px 30px; 
-            font-size: 18px; 
-            background: #ff6b6b; 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
+        button {
+            padding: 15px 35px;
+            font-size: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
-        
-        button:hover { 
-            background: #ff5252;
-            transform: translateY(-2px);
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
         }
-        
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
         .sleep-now-btn {
-            background: #4CAF50;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4);
         }
-        
+
         .sleep-now-btn:hover {
-            background: #45a049;
+            box-shadow: 0 6px 20px rgba(17, 153, 142, 0.6);
         }
         
-        #result { 
-            margin-top: 30px; 
-            padding: 20px; 
-            background: #e8f5e8; 
-            border-radius: 8px; 
-            display: none; 
+        #result {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            border-radius: 15px;
+            display: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         /* 时间选择组件样式 */
@@ -249,8 +294,9 @@
     </style>
 </head>
 <body>
-    <h1>睡眠鼓励器</h1>
-    <p>当你不想睡觉时，点击下面按钮获取鼓励！</p>
+    <div class="container">
+        <h1>睡眠鼓励器</h1>
+        <p style="color: #666; font-size: 1.1em;">当你不想睡觉时，点击下面按钮获取鼓励！</p>
 
     <!-- 通知权限提示 -->
     <div id="notificationBanner" style="display: none; background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ffc107;">
@@ -280,10 +326,11 @@
     <div class="records-section">
         <div class="records-header">
             <h3>睡眠记录</h3>
-            <div class="pagination">
-                <button id="prevPage">上一页</button>
-                <span id="pageInfo">第 1 页</span>
-                <button id="nextPage">下一页</button>
+            <div class="date-selector-container">
+                <label for="dateSelect" style="margin-right: 10px; font-weight: 500;">选择日期：</label>
+                <select id="dateSelect" style="padding: 8px 15px; border-radius: 5px; border: 2px solid #2196F3; font-size: 14px; cursor: pointer; background: white;">
+                    <option value="">加载中...</option>
+                </select>
             </div>
         </div>
         <div id="recordsContainer"></div>
@@ -296,6 +343,7 @@
             <p id="reminderMessage">现在已经很晚了，睡觉了没有？<br>良好的睡眠有助于身体健康！</p>
             <button id="acknowledgeBtn" class="acknowledge-btn">知道了</button>
         </div>
+    </div>
     </div>
 
     <script>
@@ -348,9 +396,8 @@
                 option.addEventListener('click', handleTimeSelection);
             });
 
-            // 分页按钮
-            document.getElementById('prevPage').addEventListener('click', () => changePage(-1));
-            document.getElementById('nextPage').addEventListener('click', () => changePage(1));
+            // 日期选择器
+            document.getElementById('dateSelect').addEventListener('change', handleDateChange);
 
             // 模态框按钮
             document.getElementById('acknowledgeBtn').addEventListener('click', hideSleepReminder);
@@ -364,6 +411,15 @@
 
             // 开启通知按钮
             document.getElementById('enableNotificationBtn').addEventListener('click', requestNotificationPermission);
+        }
+
+        // 处理日期选择变化
+        function handleDateChange(e) {
+            const selectedDate = e.target.value;
+            if (selectedDate) {
+                currentPage = parseInt(e.target.selectedIndex) + 1;
+                loadRecords();
+            }
         }
 
         // 处理"等下再睡"按钮点击
@@ -492,30 +548,39 @@
         function showSleepReminder() {
             const reminderText = `已经过了${selectedReminderTime}分钟，该睡觉了！良好的睡眠有助于身体健康！`;
 
-            // 尝试发送系统通知
-            if (Notification.permission === 'granted') {
-                const notification = new Notification('🌙 睡眠提醒', {
-                    body: reminderText,
-                    icon: '🌙',
-                    badge: '🌙',
-                    tag: 'sleep-reminder',
-                    requireInteraction: true,
-                    silent: false
-                });
+            // 记录提醒显示事件
+            recordEvent('提醒用户睡觉');
 
-                // 点击通知时聚焦到页面
-                notification.onclick = function() {
-                    window.focus();
+            // 尝试发送系统通知
+            if ('Notification' in window && Notification.permission === 'granted') {
+                try {
+                    const notification = new Notification('🌙 睡眠提醒', {
+                        body: reminderText,
+                        requireInteraction: true,
+                        silent: false
+                    });
+
+                    console.log('系统通知已发送');
+
+                    // 点击通知时聚焦到页面
+                    notification.onclick = function() {
+                        window.focus();
+                        showModalReminder(reminderText);
+                        notification.close();
+                    };
+
+                    // 同时显示模态框（以防用户错过通知）
                     showModalReminder(reminderText);
-                    notification.close();
-                };
+                } catch (error) {
+                    console.error('发送通知时出错:', error);
+                    // 如果通知失败，显示模态框
+                    showModalReminder(reminderText);
+                }
             } else {
+                console.log('通知权限未授予，显示模态框');
                 // 如果没有通知权限，显示模态框
                 showModalReminder(reminderText);
             }
-
-            // 记录提醒显示事件
-            recordEvent('提醒用户睡觉');
         }
 
         // 显示模态框提醒
@@ -572,17 +637,14 @@
         function loadRecords() {
             const records = JSON.parse(localStorage.getItem('sleepRecords') || '[]');
 
-            // 调试：输出记录总数
-            console.log(`总记录数: ${records.length}`);
-
             // 按日期分组
             const groupedRecords = groupRecordsByDate(records);
 
             // 获取日期列表并排序
             const dates = Object.keys(groupedRecords).sort((a, b) => new Date(b) - new Date(a));
 
-            // 调试：输出日期列表
-            console.log(`日期列表:`, dates);
+            // 更新日期选择器
+            updateDateSelector(dates);
 
             // 确保 currentPage 在有效范围内
             const totalPages = dates.length;
@@ -597,15 +659,34 @@
             const currentDate = dates[currentPage - 1];
             const currentDayRecords = currentDate ? { [currentDate]: groupedRecords[currentDate] } : {};
 
-            // 调试：输出当前显示的日期和记录
-            console.log(`当前页: ${currentPage}, 当前日期: ${currentDate}`);
-            console.log(`当前日期的记录:`, currentDayRecords);
-
             // 显示记录
             displayRecords(currentDayRecords, currentDate ? [currentDate] : []);
+        }
 
-            // 更新分页信息
-            updatePagination(currentPage, totalPages);
+        // 更新日期选择器
+        function updateDateSelector(dates) {
+            const dateSelect = document.getElementById('dateSelect');
+            dateSelect.innerHTML = '';
+
+            if (dates.length === 0) {
+                dateSelect.innerHTML = '<option value="">暂无记录</option>';
+                dateSelect.disabled = true;
+                return;
+            }
+
+            dateSelect.disabled = false;
+
+            dates.forEach((date, index) => {
+                const option = document.createElement('option');
+                option.value = date;
+                option.textContent = formatDate(date);
+
+                if (index === currentPage - 1) {
+                    option.selected = true;
+                }
+
+                dateSelect.appendChild(option);
+            });
         }
 
         // 按日期分组记录
@@ -697,21 +778,6 @@
             }
         }
 
-        // 更新分页信息
-        function updatePagination(currentPage, totalPages) {
-            const pageInfo = totalPages > 0 ? `第 ${currentPage} / ${totalPages} 天` : '暂无记录';
-            document.getElementById('pageInfo').textContent = pageInfo;
-            document.getElementById('prevPage').disabled = currentPage <= 1 || totalPages === 0;
-            document.getElementById('nextPage').disabled = currentPage >= totalPages || totalPages === 0;
-        }
-
-        // 切换页面
-        function changePage(direction) {
-            currentPage += direction;
-            if (currentPage < 1) currentPage = 1;
-            loadRecords();
-        }
-
         // 检查通知权限状态
         function checkNotificationPermission() {
             if (!('Notification' in window)) {
@@ -743,22 +809,36 @@
             }
 
             try {
+                console.log('请求通知权限...');
                 const permission = await Notification.requestPermission();
+                console.log('通知权限结果:', permission);
 
                 if (permission === 'granted') {
                     // 发送测试通知
-                    new Notification('🎉 通知已开启', {
-                        body: '现在你会收到睡眠提醒了！',
-                        icon: '🌙'
-                    });
+                    try {
+                        const testNotification = new Notification('🎉 通知已开启', {
+                            body: '现在你会收到睡眠提醒了！'
+                        });
+                        console.log('测试通知已发送');
+
+                        // 自动关闭测试通知
+                        setTimeout(() => {
+                            testNotification.close();
+                        }, 5000);
+                    } catch (notifError) {
+                        console.error('发送测试通知时出错:', notifError);
+                    }
 
                     // 隐藏横幅
                     document.getElementById('notificationBanner').style.display = 'none';
                 } else if (permission === 'denied') {
                     alert('通知权限被拒绝，你需要在浏览器设置中手动开启通知权限。');
+                } else {
+                    console.log('用户未授予通知权限');
                 }
             } catch (error) {
                 console.error('请求通知权限时出错:', error);
+                alert('请求通知权限时出错: ' + error.message);
             }
         }
     </script>
