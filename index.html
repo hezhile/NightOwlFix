@@ -302,7 +302,6 @@
         // 全局变量
         let selectedReminderTime = 5; // 默认5分钟
         let currentPage = 1;
-        const recordsPerPage = 10;
         let reminderTimeout;
 
         // 初始化
@@ -533,25 +532,38 @@
             document.getElementById('sleepModal').style.display = 'none';
         }
 
+        // 获取睡眠日期（22:00-02:00算作前一天）
+        function getSleepDate(date) {
+            const hours = date.getHours();
+            const sleepDate = new Date(date);
+
+            // 如果是凌晨0点到2点，算作前一天
+            if (hours >= 0 && hours < 2) {
+                sleepDate.setDate(sleepDate.getDate() - 1);
+            }
+
+            return sleepDate.toDateString();
+        }
+
         // 记录事件
         function recordEvent(eventType) {
             const now = new Date();
             const event = {
                 type: eventType,
                 timestamp: now.getTime(),
-                date: now.toDateString(),
+                date: getSleepDate(now), // 使用睡眠日期逻辑
                 time: now.toLocaleTimeString('zh-CN')
             };
-            
+
             // 获取现有记录
             let records = JSON.parse(localStorage.getItem('sleepRecords') || '[]');
-            
+
             // 添加新记录
             records.push(event);
-            
+
             // 保存记录
             localStorage.setItem('sleepRecords', JSON.stringify(records));
-            
+
             // 刷新显示
             loadRecords();
         }
@@ -559,22 +571,29 @@
         // 加载记录
         function loadRecords() {
             const records = JSON.parse(localStorage.getItem('sleepRecords') || '[]');
-            
+
             // 按日期分组
             const groupedRecords = groupRecordsByDate(records);
-            
+
             // 获取日期列表并排序
             const dates = Object.keys(groupedRecords).sort((a, b) => new Date(b) - new Date(a));
-            
-            // 分页
-            const totalPages = Math.ceil(dates.length / recordsPerPage);
-            const startIndex = (currentPage - 1) * recordsPerPage;
-            const endIndex = startIndex + recordsPerPage;
-            const pageDates = dates.slice(startIndex, endIndex);
-            
+
+            // 确保 currentPage 在有效范围内
+            const totalPages = dates.length;
+            if (currentPage > totalPages && totalPages > 0) {
+                currentPage = totalPages;
+            }
+            if (currentPage < 1) {
+                currentPage = 1;
+            }
+
+            // 每页显示一天的记录
+            const currentDate = dates[currentPage - 1];
+            const currentDayRecords = currentDate ? { [currentDate]: groupedRecords[currentDate] } : {};
+
             // 显示记录
-            displayRecords(groupedRecords, pageDates);
-            
+            displayRecords(currentDayRecords, currentDate ? [currentDate] : []);
+
             // 更新分页信息
             updatePagination(currentPage, totalPages);
         }
@@ -659,9 +678,10 @@
 
         // 更新分页信息
         function updatePagination(currentPage, totalPages) {
-            document.getElementById('pageInfo').textContent = `第 ${currentPage} 页`;
-            document.getElementById('prevPage').disabled = currentPage <= 1;
-            document.getElementById('nextPage').disabled = currentPage >= totalPages;
+            const pageInfo = totalPages > 0 ? `第 ${currentPage} / ${totalPages} 天` : '暂无记录';
+            document.getElementById('pageInfo').textContent = pageInfo;
+            document.getElementById('prevPage').disabled = currentPage <= 1 || totalPages === 0;
+            document.getElementById('nextPage').disabled = currentPage >= totalPages || totalPages === 0;
         }
 
         // 切换页面
