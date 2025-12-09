@@ -307,15 +307,23 @@
 
         // 初始化应用
         function initializeApp() {
-            // 记录用户首次打开网页
-            recordEvent('首次打开网页');
-            
+            // 记录用户首次打开网页（只记录一次）
+            if (!localStorage.getItem('hasVisited')) {
+                recordEvent('首次打开网页');
+                localStorage.setItem('hasVisited', 'true');
+            }
+
             // 恢复选择的提醒时间
             const savedTime = localStorage.getItem('selectedReminderTime');
             if (savedTime) {
                 selectedReminderTime = parseInt(savedTime);
-                updateTimeSelection(selectedReminderTime);
             }
+
+            // 更新时间选择UI（包括默认选项）
+            updateTimeSelection(selectedReminderTime);
+
+            // 检查今天是否已经睡觉
+            checkTodaySleepStatus();
         }
 
         // 设置事件监听器
@@ -375,9 +383,9 @@
                 if (!response.ok) throw new Error('请求失败');
 
                 const data = await response.json();
-                resultDiv.innerHTML = `<strong>AI鼓励：</strong><br>${data.message}`;
+                resultDiv.innerHTML = `<strong>AI鼓励：</strong><br>${data.message}<br><br><em>⏰ 将在 ${selectedReminderTime} 分钟后提醒你睡觉</em>`;
                 resultDiv.style.display = 'block';
-                
+
                 // 设置提醒
                 scheduleReminder();
             } catch (error) {
@@ -392,25 +400,49 @@
         // 处理"现在去睡了"按钮点击
         function handleSleepNow() {
             recordEvent('用户睡觉了');
-            
+
             // 清除现有的提醒
             if (reminderTimeout) {
                 clearTimeout(reminderTimeout);
             }
-            
+
             // 标记今天已睡
             const today = new Date().toDateString();
             localStorage.setItem(`slept_${today}`, 'true');
-            
+
+            // 隐藏睡眠提醒弹窗（如果正在显示）
+            hideSleepReminder();
+
             // 显示确认消息
             const resultDiv = document.getElementById('result');
             resultDiv.innerHTML = `<strong>晚安！</strong><br>好好休息，做个好梦！`;
             resultDiv.style.display = 'block';
-            
+
+            // 禁用"等下再睡"按钮
+            document.getElementById('noSleepBtn').disabled = true;
+            document.getElementById('noSleepBtn').textContent = '今天已睡';
+
             // 3秒后隐藏消息
             setTimeout(() => {
                 resultDiv.style.display = 'none';
             }, 3000);
+        }
+
+        // 检查今天是否已经睡觉
+        function checkTodaySleepStatus() {
+            const today = new Date().toDateString();
+            const hasSlept = localStorage.getItem(`slept_${today}`);
+
+            if (hasSlept) {
+                // 如果今天已经睡了，禁用"等下再睡"按钮
+                document.getElementById('noSleepBtn').disabled = true;
+                document.getElementById('noSleepBtn').textContent = '今天已睡';
+
+                // 显示提示
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = `<strong>今天你已经好好休息了！</strong><br>继续保持良好的睡眠习惯！`;
+                resultDiv.style.display = 'block';
+            }
         }
 
         // 处理时间选择
@@ -437,10 +469,7 @@
             if (reminderTimeout) {
                 clearTimeout(reminderTimeout);
             }
-            
-            // 记录提醒事件
-            recordEvent('提醒用户睡觉');
-            
+
             // 设置新的提醒
             reminderTimeout = setTimeout(() => {
                 showSleepReminder();
