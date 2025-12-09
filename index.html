@@ -572,11 +572,17 @@
         function loadRecords() {
             const records = JSON.parse(localStorage.getItem('sleepRecords') || '[]');
 
+            // 调试：输出记录总数
+            console.log(`总记录数: ${records.length}`);
+
             // 按日期分组
             const groupedRecords = groupRecordsByDate(records);
 
             // 获取日期列表并排序
             const dates = Object.keys(groupedRecords).sort((a, b) => new Date(b) - new Date(a));
+
+            // 调试：输出日期列表
+            console.log(`日期列表:`, dates);
 
             // 确保 currentPage 在有效范围内
             const totalPages = dates.length;
@@ -590,6 +596,10 @@
             // 每页显示一天的记录
             const currentDate = dates[currentPage - 1];
             const currentDayRecords = currentDate ? { [currentDate]: groupedRecords[currentDate] } : {};
+
+            // 调试：输出当前显示的日期和记录
+            console.log(`当前页: ${currentPage}, 当前日期: ${currentDate}`);
+            console.log(`当前日期的记录:`, currentDayRecords);
 
             // 显示记录
             displayRecords(currentDayRecords, currentDate ? [currentDate] : []);
@@ -614,21 +624,32 @@
         function displayRecords(groupedRecords, dates) {
             const container = document.getElementById('recordsContainer');
             container.innerHTML = '';
-            
+
+            // 如果没有记录，显示提示
+            if (dates.length === 0) {
+                container.innerHTML = '<p style="text-align: center; padding: 20px; color: #666;">暂无睡眠记录</p>';
+                return;
+            }
+
             dates.forEach(date => {
+                // 确保该日期有记录
+                if (!groupedRecords[date] || groupedRecords[date].length === 0) {
+                    return;
+                }
+
                 const dateSection = document.createElement('div');
                 dateSection.className = 'date-section';
-                
+
                 // 创建日期标题
                 const dateHeader = document.createElement('div');
                 dateHeader.className = 'date-header';
                 dateHeader.textContent = formatDate(date);
                 dateSection.appendChild(dateHeader);
-                
+
                 // 创建记录表格
                 const table = document.createElement('table');
                 table.className = 'records-table';
-                
+
                 // 创建表头
                 const thead = document.createElement('thead');
                 thead.innerHTML = `
@@ -638,7 +659,7 @@
                     </tr>
                 `;
                 table.appendChild(thead);
-                
+
                 // 创建表体
                 const tbody = document.createElement('tbody');
                 groupedRecords[date].forEach(record => {
@@ -650,7 +671,7 @@
                     tbody.appendChild(row);
                 });
                 table.appendChild(tbody);
-                
+
                 dateSection.appendChild(table);
                 container.appendChild(dateSection);
             });
