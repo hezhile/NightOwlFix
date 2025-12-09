@@ -251,12 +251,19 @@
 <body>
     <h1>睡眠鼓励器</h1>
     <p>当你不想睡觉时，点击下面按钮获取鼓励！</p>
-    
+
+    <!-- 通知权限提示 -->
+    <div id="notificationBanner" style="display: none; background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ffc107;">
+        <p style="margin: 0 0 10px 0;"><strong>🔔 开启通知功能</strong></p>
+        <p style="margin: 0 0 10px 0; font-size: 14px;">允许通知后，即使浏览器在后台，我们也能及时提醒你睡觉！</p>
+        <button id="enableNotificationBtn" style="background: #ffc107; color: #000; padding: 8px 20px; font-size: 14px;">开启通知</button>
+    </div>
+
     <div class="button-container">
         <button id="noSleepBtn">等下再睡</button>
         <button id="sleepNowBtn" class="sleep-now-btn">现在去睡了</button>
     </div>
-    
+
     <div id="result"></div>
 
     <!-- 时间选择组件 -->
@@ -324,34 +331,40 @@
 
             // 检查今天是否已经睡觉
             checkTodaySleepStatus();
+
+            // 检查通知权限
+            checkNotificationPermission();
         }
 
         // 设置事件监听器
         function setupEventListeners() {
             // 等下再睡按钮
             document.getElementById('noSleepBtn').addEventListener('click', handleNoSleep);
-            
+
             // 现在去睡了按钮
             document.getElementById('sleepNowBtn').addEventListener('click', handleSleepNow);
-            
+
             // 时间选择选项
             document.querySelectorAll('.time-option').forEach(option => {
                 option.addEventListener('click', handleTimeSelection);
             });
-            
+
             // 分页按钮
             document.getElementById('prevPage').addEventListener('click', () => changePage(-1));
             document.getElementById('nextPage').addEventListener('click', () => changePage(1));
-            
+
             // 模态框按钮
             document.getElementById('acknowledgeBtn').addEventListener('click', hideSleepReminder);
-            
+
             // 点击模态框外部关闭
             document.getElementById('sleepModal').addEventListener('click', (e) => {
                 if (e.target.id === 'sleepModal') {
                     hideSleepReminder();
                 }
             });
+
+            // 开启通知按钮
+            document.getElementById('enableNotificationBtn').addEventListener('click', requestNotificationPermission);
         }
 
         // 处理"等下再睡"按钮点击
@@ -478,14 +491,41 @@
 
         // 显示睡眠提醒
         function showSleepReminder() {
-            const modal = document.getElementById('sleepModal');
-            const message = document.getElementById('reminderMessage');
-            
-            message.textContent = `已经过了${selectedReminderTime}分钟，该睡觉了！良好的睡眠有助于身体健康！`;
-            modal.style.display = 'flex';
-            
+            const reminderText = `已经过了${selectedReminderTime}分钟，该睡觉了！良好的睡眠有助于身体健康！`;
+
+            // 尝试发送系统通知
+            if (Notification.permission === 'granted') {
+                const notification = new Notification('🌙 睡眠提醒', {
+                    body: reminderText,
+                    icon: '🌙',
+                    badge: '🌙',
+                    tag: 'sleep-reminder',
+                    requireInteraction: true,
+                    silent: false
+                });
+
+                // 点击通知时聚焦到页面
+                notification.onclick = function() {
+                    window.focus();
+                    showModalReminder(reminderText);
+                    notification.close();
+                };
+            } else {
+                // 如果没有通知权限，显示模态框
+                showModalReminder(reminderText);
+            }
+
             // 记录提醒显示事件
             recordEvent('提醒用户睡觉');
+        }
+
+        // 显示模态框提醒
+        function showModalReminder(text) {
+            const modal = document.getElementById('sleepModal');
+            const message = document.getElementById('reminderMessage');
+
+            message.textContent = text;
+            modal.style.display = 'flex';
         }
 
         // 隐藏睡眠提醒
@@ -629,6 +669,56 @@
             currentPage += direction;
             if (currentPage < 1) currentPage = 1;
             loadRecords();
+        }
+
+        // 检查通知权限状态
+        function checkNotificationPermission() {
+            if (!('Notification' in window)) {
+                // 浏览器不支持通知
+                console.log('浏览器不支持通知功能');
+                return;
+            }
+
+            const banner = document.getElementById('notificationBanner');
+
+            if (Notification.permission === 'default') {
+                // 尚未请求权限，显示提示横幅
+                banner.style.display = 'block';
+            } else if (Notification.permission === 'denied') {
+                // 用户拒绝了权限
+                banner.style.display = 'none';
+                console.log('用户已拒绝通知权限');
+            } else if (Notification.permission === 'granted') {
+                // 已授权，隐藏横幅
+                banner.style.display = 'none';
+            }
+        }
+
+        // 请求通知权限
+        async function requestNotificationPermission() {
+            if (!('Notification' in window)) {
+                alert('你的浏览器不支持通知功能');
+                return;
+            }
+
+            try {
+                const permission = await Notification.requestPermission();
+
+                if (permission === 'granted') {
+                    // 发送测试通知
+                    new Notification('🎉 通知已开启', {
+                        body: '现在你会收到睡眠提醒了！',
+                        icon: '🌙'
+                    });
+
+                    // 隐藏横幅
+                    document.getElementById('notificationBanner').style.display = 'none';
+                } else if (permission === 'denied') {
+                    alert('通知权限被拒绝，你需要在浏览器设置中手动开启通知权限。');
+                }
+            } catch (error) {
+                console.error('请求通知权限时出错:', error);
+            }
         }
     </script>
 </body>
