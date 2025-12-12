@@ -308,6 +308,7 @@
     <div class="button-container">
         <button id="noSleepBtn">等下再睡</button>
         <button id="sleepNowBtn" class="sleep-now-btn">现在去睡了</button>
+        <button id="testBtn" style="background-color: #ff9800;">测试API</button>
     </div>
 
     <div id="result"></div>
@@ -411,6 +412,9 @@
 
             // 开启通知按钮
             document.getElementById('enableNotificationBtn').addEventListener('click', requestNotificationPermission);
+
+            // 测试按钮
+            document.getElementById('testBtn').addEventListener('click', testAPI);
         }
 
         // 处理日期选择变化
@@ -494,6 +498,45 @@
             setTimeout(() => {
                 resultDiv.style.display = 'none';
             }, 3000);
+        }
+
+        // 测试API连接
+        async function testAPI() {
+            const btn = document.getElementById('testBtn');
+            const resultDiv = document.getElementById('result');
+
+            // 获取用户当地时间
+            const now = new Date();
+            const localTime = now.toLocaleTimeString('zh-CN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+
+            btn.textContent = '测试中...';
+            btn.disabled = true;
+            resultDiv.innerHTML = `<strong>正在测试API连接...</strong><br>时间: ${localTime}`;
+            resultDiv.style.display = 'block';
+
+            try {
+                const response = await fetch('sleep.vuntun.app/api/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ localTime })
+                });
+
+                if (!response.ok) throw new Error(`HTTP错误! 状态: ${response.status}`);
+
+                const data = await response.json();
+                resultDiv.innerHTML = `<strong>✅ API测试成功！</strong><br>响应消息: ${data.message}<br>响应时间: ${localTime}`;
+                resultDiv.style.display = 'block';
+            } catch (error) {
+                resultDiv.innerHTML = `<strong>❌ API测试失败</strong><br>错误: ${error.message}<br>时间: ${localTime}`;
+                resultDiv.style.display = 'block';
+            }
+
+            btn.textContent = '测试API';
+            btn.disabled = false;
         }
 
         // 检查今天是否已经睡觉
