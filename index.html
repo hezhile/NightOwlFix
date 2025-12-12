@@ -299,7 +299,6 @@
         <p style="color: #666; font-size: 1.1em;">当你不想睡觉时，点击下面按钮获取鼓励！</p>
 
     <!-- 通知权限提示 -->
-     <!-- 通知权限提示 -->
     <div id="notificationBanner" style="display: none; background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ffc107;">
         <p style="margin: 0 0 10px 0;"><strong>🔔 开启通知功能</strong></p>
         <p style="margin: 0 0 10px 0; font-size: 14px;">允许通知后，即使浏览器在后台，我们也能及时提醒你睡觉！</p>
@@ -381,6 +380,9 @@
 
             // 检查今天是否已经睡觉
             checkTodaySleepStatus();
+
+            // 安排在10:00自动重置睡眠状态
+            scheduleResetAt10AM();
 
             // 检查通知权限
             checkNotificationPermission();
@@ -483,9 +485,14 @@
                 clearTimeout(reminderTimeout);
             }
 
-            // 标记今天已睡
-            const today = new Date().toDateString();
-            localStorage.setItem(`slept_${today}`, 'true');
+            // 使用 getSleepDate 获取睡眠日期，并保存时间戳
+            const now = new Date();
+            const sleepDate = getSleepDate(now);
+            const sleepData = {
+                timestamp: now.getTime(),
+                date: sleepDate
+            };
+            localStorage.setItem(`slept_${sleepDate}`, JSON.stringify(sleepData));
 
             // 隐藏睡眠提醒弹窗（如果正在显示）
             hideSleepReminder();
@@ -567,18 +574,35 @@
 
         // 检查今天是否已经睡觉
         function checkTodaySleepStatus() {
-            const today = new Date().toDateString();
-            const hasSlept = localStorage.getItem(`slept_${today}`);
+            const now = new Date();
+            const currentHour = now.getHours();
+            const todaySleepDate = getSleepDate(now);
 
-            if (hasSlept) {
-                // 如果今天已经睡了，禁用"等下再睡"按钮
-                document.getElementById('noSleepBtn').disabled = true;
-                document.getElementById('noSleepBtn').textContent = '今天已睡';
+            // 判断当前时间是否已超过当天10:00
+            if (currentHour >= 10) {
+                // 如果超过10:00，清除今天的睡眠标记
+                resetTodaySleepStatus();
+            } else {
+                // 如果未到10:00，检查是否有睡眠记录
+                const sleepRecord = localStorage.getItem(`slept_${todaySleepDate}`);
+                if (sleepRecord) {
+                    try {
+                        const sleepData = JSON.parse(sleepRecord);
+                        // 确保睡眠记录是今天的
+                        if (sleepData.date === todaySleepDate) {
+                            updateSleepButtonUI(true);
 
-                // 显示提示
-                const resultDiv = document.getElementById('result');
-                resultDiv.innerHTML = `<strong>今天你已经好好休息了！</strong><br>继续保持良好的睡眠习惯！`;
-                resultDiv.style.display = 'block';
+                            // 显示提示
+                            const resultDiv = document.getElementById('result');
+                            resultDiv.innerHTML = `<strong>今天你已经好好休息了！</strong><br>继续保持良好的睡眠习惯！`;
+                            resultDiv.style.display = 'block';
+                        }
+                    } catch (e) {
+                        console.error('解析睡眠记录失败:', e);
+                        // 如果解析失败，清除可能损坏的数据
+                        localStorage.removeItem(`slept_${todaySleepDate}`);
+                    }
+                }
             }
         }
 
@@ -677,6 +701,63 @@
             }
 
             return sleepDate.toDateString();
+        }
+
+        // 获取当天10:00的时间戳
+        function getToday10AMTime() {
+            const now = new Date();
+            const tenAM = new Date(now);
+            tenAM.setHours(10, 0, 0, 0);
+            return tenAM.getTime();
+        }
+
+        // 重置今天的睡眠状态
+        function resetTodaySleepStatus() {
+            const todaySleepDate = getSleepDate(new Date());
+            localStorage.removeItem(`slept_${todaySleepDate}`);
+            updateSleepButtonUI(false);
+
+            // 隐藏可能显示的睡眠提示
+            const resultDiv = document.getElementById('result');
+            if (resultDiv.innerHTML.includes('今天你已经好好休息了')) {
+                resultDiv.style.display = 'none';
+            }
+        }
+
+        // 更新睡眠按钮UI状态
+        function updateSleepButtonUI(hasSlept) {
+            const noSleepBtn = document.getElementById('noSleepBtn');
+
+            if (hasSlept) {
+                noSleepBtn.disabled = true;
+                noSleepBtn.textContent = '今天已睡';
+            } else {
+                noSleepBtn.disabled = false;
+                noSleepBtn.textContent = '等下再睡';
+            }
+        }
+
+        // 安排在10:00自动重置睡眠状态
+        function scheduleResetAt10AM() {
+            const now = new Date();
+            const currentHour = now.getHours();
+
+            // 只有在0:00-9:59之间才需要设置定时器
+            if (currentHour < 10) {
+                const tenAMTime = getToday10AMTime();
+                const currentTime = now.getTime();
+                const delay = tenAMTime - currentTime;
+
+                // 如果10:00还没到，设置定时器
+                if (delay > 0) {
+                    console.log(`将在 ${Math.round(delay / 1000 / 60)} 分钟后重置睡眠状态`);
+
+                    setTimeout(() => {
+                        console.log('10:00到达，自动重置睡眠状态');
+                        resetTodaySleepStatus();
+                    }, delay);
+                }
+            }
         }
 
         // 记录事件
