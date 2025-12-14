@@ -924,28 +924,35 @@
                 display: none;
             }
         }
-        /* === 强制修复设置窗口居中问题 === */
-        #sleepConfigModal {
-        /* 确保容器本身是弹性居中布局 */
+        /* === 修复版：解决位置偏移 + 解决无法关闭 === */
+
+        /* 1. 只有当窗口状态为“显示”时，才强制居中 */
+        #sleepConfigModal[aria-hidden="false"] {
             display: flex !important;
             justify-content: center !important;
             align-items: center !important;
             padding: 0 !important;
         }
 
+        /* 2. 当窗口状态为“隐藏”时，强制隐藏 (确保能关掉) */
+        #sleepConfigModal[aria-hidden="true"] {
+            display: none !important;
+        }
+
+        /* 3. 重置内部内容的位置 (这一步是为了解决位置不对的问题) */
         #sleepConfigModal .modal-content {
-        /* 强制取消任何 JS 计算出的固定定位 */
+            /* 强制取消 JS 计算出的固定定位 */
             position: relative !important;
             top: auto !important;
             left: auto !important;
             right: auto !important;
             bottom: auto !important;
     
-        /* 确保在屏幕正中间 */
+            /* 确保在屏幕正中间 */
             margin: auto !important;
             transform: none !important;
     
-        /* 防止宽度过大 */
+            /* 保持宽度限制 */
             max-width: 500px !important;
             width: 90% !important;
         }
