@@ -1,0 +1,76 @@
+export default {
+  async fetch(request, env, ctx) {
+    // Handle CORS preflight requests
+    if (request.method === 'OPTIONS') {
+      return new Response(null, {
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+      });
+    }
+
+    // Only handle POST requests
+    if (request.method !== 'POST') {
+      return new Response('Method not allowed', { 
+        status: 405,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+
+    try {
+      // Parse the incoming request body
+      const requestBody = await request.json();
+      
+      // Validate request body structure
+      if (!requestBody.localTime) {
+        return new Response(JSON.stringify({ 
+          error: 'Invalid request body: localTime field is required' 
+        }), {
+          status: 400,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': 'application/json'
+          }
+        });
+      }
+
+      // Use Cloudflare Worker AI without streaming
+      const prompt = `你是一个睡眠教练，任务是通过对话帮助我改善睡眠习惯。当前时间是${requestBody.localTime}，请在晚上11点后温和但坚定地督促我上床休息。保持语气关心、支持。并提供2-3个具体的睡前放松建议。回复要简短，不超过100字。`;
+      
+      const answer = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+        prompt: prompt,
+        stream: false
+      });
+
+      // 修复：返回 message 字段而不是 response
+      return new Response(JSON.stringify({ message: answer.response }), {
+        headers: { 
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json" 
+        }
+      });
+
+    } catch (error) {
+      console.error('Error in Cloudflare Worker:', error);
+      
+      // Handle any errors
+      return new Response(JSON.stringify({ 
+        error: 'Internal server error',
+        message: error.message,
+        stack: error.stack 
+      }), {
+        status: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+  }
+};
