@@ -366,7 +366,6 @@
     <div class="button-container">
         <button id="noSleepBtn">等下再睡</button>
         <button id="sleepNowBtn" class="sleep-now-btn">现在去睡了</button>
-        <button id="testBtn" style="background-color: #ff9800;">测试API</button>
     </div>
 
     <div id="result"></div>
@@ -570,9 +569,7 @@
             // 开启通知按钮
             document.getElementById('enableNotificationBtn').addEventListener('click', requestNotificationPermission);
 
-            // 测试按钮
-            document.getElementById('testBtn').addEventListener('click', testAPI);
-
+  
             // 设置按钮
             document.getElementById('settingsBtn').addEventListener('click', showSleepConfigModal);
 
@@ -872,66 +869,7 @@
             }, 3000);
         }
 
-        // 测试API连接
-        async function testAPI() {
-            const btn = document.getElementById('testBtn');
-            const resultDiv = document.getElementById('result');
-
-            // 获取用户当地时间
-            const now = new Date();
-            const localTime = now.toLocaleTimeString('zh-CN', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
-            });
-
-            btn.textContent = '测试中...';
-            btn.disabled = true;
-            resultDiv.innerHTML = `<strong>正在测试API连接...</strong><br>时间: ${localTime}<br><br><strong>调试信息：</strong>`;
-            resultDiv.style.display = 'block';
-
-            // 测试不同的API端点
-            const endpoints = [
-                'https://sleep.vuntun.app/api/',
-                'https://ancient-shadow-e810.hezhile.workers.dev/'
-            ];
-
-            let success = false;
-            let finalError = '';
-
-            for (const endpoint of endpoints) {
-                try {
-                    resultDiv.innerHTML += `<br>>> 测试端点: ${endpoint}`;
-
-                    const response = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ localTime })
-                    });
-
-                    if (!response.ok) {
-                        resultDiv.innerHTML += `<br>❌ HTTP错误! 状态: ${response.status} ${response.statusText}`;
-                        continue;
-                    }
-
-                    const data = await response.json();
-                    resultDiv.innerHTML = `<strong>✅ API测试成功！</strong><br>端点: ${endpoint}<br>响应消息: ${data.message}<br>响应时间: ${localTime}`;
-                    success = true;
-                    break;
-                } catch (error) {
-                    resultDiv.innerHTML += `<br>❌ 错误: ${error.message}`;
-                    finalError = error.message;
-                }
-            }
-
-            if (!success) {
-                resultDiv.innerHTML += `<br><br><strong>所有端点测试失败！</strong><br>建议检查网络连接或联系API提供商。`;
-            }
-
-            btn.textContent = '测试API';
-            btn.disabled = false;
-        }
-
+  
         // 检查今天是否已经睡觉
         function checkTodaySleepStatus() {
             const now = new Date();
