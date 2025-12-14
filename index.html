@@ -564,6 +564,30 @@
             position: relative;
         }
 
+        /* Positioned Modal Variant */
+        .modal-overlay--positioned {
+            justify-content: unset;
+            align-items: unset;
+            padding: 0;
+        }
+
+        .modal-overlay--positioned .modal-content {
+            position: fixed;
+            max-width: 500px;
+            width: auto;
+        }
+
+        /* Arrow pointing to button */
+        .modal-arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid var(--color-surface-overlay);
+            z-index: 1001;
+        }
+
         .modal-close {
             position: absolute;
             top: var(--spacing-md);
@@ -856,6 +880,28 @@
                 font-size: 20px;
                 margin-right: 40px; /* Space for close button */
             }
+
+            /* Mobile adjustments for positioned modal */
+            .modal-overlay--positioned {
+                justify-content: center;
+                align-items: flex-end;
+            }
+
+            .modal-overlay--positioned .modal-content {
+                position: relative;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                max-width: 100%;
+                width: 100%;
+                border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+                margin: 0;
+                animation: slideUp var(--transition-base) ease-in-out;
+            }
+
+            .modal-arrow {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -1087,7 +1133,7 @@
         }
 
         // 模态框可访问性系统
-        function showModal(modalId, focusSelector = null) {
+        function showModal(modalId, focusSelector = null, triggerButton = null) {
             const modal = document.getElementById(modalId);
             if (!modal) return;
 
@@ -1098,6 +1144,11 @@
             // 设置模态框状态
             modal.setAttribute('aria-hidden', 'false');
             modal.style.display = 'flex';
+
+            // 如果提供了触发按钮，则定位模态框
+            if (triggerButton) {
+                positionModalNearButton(modal, triggerButton);
+            }
 
             // 焦点管理
             const focusElement = focusSelector ?
@@ -1121,6 +1172,26 @@
 
             modal.setAttribute('aria-hidden', 'true');
             modal.style.display = 'none';
+
+            // 移除定位类
+            modal.classList.remove('modal-overlay--positioned');
+
+            // 移除箭头（如果存在）
+            const arrow = modal.querySelector('.modal-arrow');
+            if (arrow) {
+                arrow.remove();
+            }
+
+            // 重置模态框内容样式
+            const modalContent = modal.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.style.removeProperty('position');
+                modalContent.style.removeProperty('top');
+                modalContent.style.removeProperty('left');
+                modalContent.style.removeProperty('right');
+                modalContent.style.removeProperty('width');
+                modalContent.style.removeProperty('transform');
+            }
 
             // 恢复焦点
             if (previousFocus) {
@@ -1337,6 +1408,16 @@
             updateSleepDayStatus();
         }
 
+        // 窗口大小改变时重新定位模态框
+        window.addEventListener('resize', () => {
+            if (activeModal && activeModal.classList.contains('modal-overlay--positioned')) {
+                const settingsBtn = document.getElementById('settingsBtn');
+                if (settingsBtn) {
+                    positionModalNearButton(activeModal, settingsBtn);
+                }
+            }
+        });
+
         // 设置事件监听器
         function setupEventListeners() {
             // 等下再睡按钮
@@ -1385,7 +1466,7 @@
             document.getElementById('neverNotificationBtn').addEventListener('click', dismissNotificationForever);
 
             // 设置按钮
-            document.getElementById('settingsBtn').addEventListener('click', showSleepConfigModal);
+            document.getElementById('settingsBtn').addEventListener('click', (e) => showSleepConfigModal(e.currentTarget));
 
             // 睡眠配置模态框按钮
             document.getElementById('saveConfigBtn').addEventListener('click', saveSleepConfig);
@@ -1485,9 +1566,75 @@
             hideModal('welcomeModal');
         }
 
+        // 定位模态框到按钮附近
+        function positionModalNearButton(modal, triggerButton) {
+            const modalOverlay = modal;
+            const modalContent = modal.querySelector('.modal-content');
+            const buttonRect = triggerButton.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+
+            // 添加定位类
+            modalOverlay.classList.add('modal-overlay--positioned');
+
+            // 移动端：使用底部表单
+            if (viewportWidth <= 600) {
+                // 重置移动端样式
+                modalContent.style.removeProperty('position');
+                modalContent.style.removeProperty('top');
+                modalContent.style.removeProperty('left');
+                modalContent.style.removeProperty('right');
+                modalContent.style.removeProperty('width');
+                modalContent.style.removeProperty('transform');
+                return;
+            }
+
+            // 桌面端定位
+            const modalWidth = 500;
+            const modalHeight = modalContent.offsetHeight || 400; // 默认高度
+            const gap = 20;
+
+            // 计算位置（优先在按钮左侧）
+            let left = buttonRect.left - modalWidth - gap;
+            let top = buttonRect.top + (buttonRect.height / 2) - (modalHeight / 2);
+
+            // 如果超出左边界则调整
+            if (left < gap) {
+                left = buttonRect.right + gap;
+                // 在左侧放置箭头
+                const arrow = document.createElement('div');
+                arrow.className = 'modal-arrow';
+                arrow.style.left = '-10px';
+                arrow.style.top = (buttonRect.top - top + buttonRect.height / 2 - 5) + 'px';
+                modalContent.appendChild(arrow);
+            } else {
+                // 在右侧放置箭头
+                const arrow = document.createElement('div');
+                arrow.className = 'modal-arrow';
+                arrow.style.right = '-10px';
+                arrow.style.top = (buttonRect.top - top + buttonRect.height / 2 - 5) + 'px';
+                modalContent.appendChild(arrow);
+            }
+
+            // 如果需要，调整垂直位置
+            if (top < gap) {
+                top = gap;
+            } else if (top + modalHeight > viewportHeight - gap) {
+                top = viewportHeight - modalHeight - gap;
+            }
+
+            // 应用定位
+            modalContent.style.position = 'fixed';
+            modalContent.style.left = left + 'px';
+            modalContent.style.top = top + 'px';
+            modalContent.style.width = modalWidth + 'px';
+            modalContent.style.maxWidth = modalWidth + 'px';
+            modalContent.style.transform = 'none';
+        }
+
         // 显示睡眠配置模态框
-        function showSleepConfigModal() {
-            showModal('sleepConfigModal', '.preset-btn');
+        function showSleepConfigModal(triggerButton) {
+            showModal('sleepConfigModal', '.preset-btn', triggerButton);
 
             // 更新当前选择状态
             document.querySelectorAll('.preset-btn').forEach(btn => {
