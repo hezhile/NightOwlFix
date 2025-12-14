@@ -46,9 +46,9 @@ export default {
       // Use Cloudflare Worker AI without streaming
       let prompt;
       if (type === 'praise') {
-        prompt = `你是一个睡眠教练，任务是通过对话帮助我改善睡眠习惯。当前时间是${requestBody.localTime}，用户决定现在就去睡觉。请积极鼓励用户的这个决定，称赞他们照顾自己健康的行为，并祝愿他们有个好梦。保持语气温暖、鼓励。回复要简短，不超过100字。`;
+        prompt = `你是一个睡眠教练，任务是通过对话帮助用户改善睡眠习惯。用户决定现在就去睡觉。请积极鼓励用户的这个决定，称赞他们照顾自己健康的行为，并祝愿他们有个好梦。保持语气温暖、鼓励。回复要简短，不超过40字。`;
       } else {
-        prompt = `你是一个睡眠教练，任务是通过对话帮助我改善睡眠习惯。当前时间是${requestBody.localTime}，请在晚上11点后温和但坚定地督促我上床休息。保持语气关心、支持。并提供2-3个具体的睡前放松建议。回复要简短，不超过100字。`;
+        prompt = `你是一个睡眠教练，任务是通过对话帮助用户改善睡眠习惯。当前时间是${requestBody.localTime}，请在晚上11点后温和但坚定地督促用户上床休息。保持语气关心、支持。并提供2-3个具体的睡前放松建议。回复要简短，不超过100字。`;
       }
       
       const answer = await env.AI.run('@cf/meta/llama-4-scout-17b-16e-instruct', {
