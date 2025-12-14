@@ -1841,10 +1841,8 @@
             btn.disabled = false;
         }
 
-        // 处理"现在去睡了"按钮点击
-        function handleSleepNow() {
-            recordEvent('用户睡觉了');
-
+        // 执行睡觉相关的操作
+        function proceedSleepActions() {
             // 清除现有的提醒
             if (reminderTimeout) {
                 clearTimeout(reminderTimeout);
@@ -1862,10 +1860,6 @@
             // 隐藏睡眠提醒弹窗（如果正在显示）
             hideSleepReminder();
 
-            // 隐藏鼓励话语
-            const encouragementText = document.getElementById('encouragementText');
-            encouragementText.style.display = 'none';
-
             // 显示确认消息
             showToast('success', '晚安！好好休息，做个好梦！', 3000);
 
@@ -1873,6 +1867,41 @@
             const noSleepBtn = document.getElementById('noSleepBtn');
             noSleepBtn.disabled = true;
             noSleepBtn.textContent = '今天已睡';
+        }
+
+        // 处理"现在去睡了"按钮点击
+        async function handleSleepNow() {
+            recordEvent('用户睡觉了');
+
+            // 获取用户当地时间
+            const now = new Date();
+            const localTime = now.toLocaleTimeString('zh-CN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+
+            try {
+                const response = await fetch('https://sleep.vuntun.app/api/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ localTime, type: 'praise' })
+                });
+
+                if (!response.ok) throw new Error(`请求失败 (状态: ${response.status})`);
+
+                const data = await response.json();
+                // 显示AI生成的表扬话语
+                showEncouragement(data.message);
+
+                // 延迟2秒后执行睡觉操作，让用户看到表扬
+                setTimeout(proceedSleepActions, 2000);
+
+            } catch (error) {
+                // 如果API调用失败，显示默认消息并直接执行睡觉操作
+                showToast('error', `API出错：${error.message}。但还是为你感到高兴！`, 3000);
+                proceedSleepActions();
+            }
         }
 
   

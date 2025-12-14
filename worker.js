@@ -26,11 +26,14 @@ export default {
     try {
       // Parse the incoming request body
       const requestBody = await request.json();
-      
+
+      // Get the prompt type (default to 'urge' for backward compatibility)
+      const type = requestBody.type || 'urge';
+
       // Validate request body structure
       if (!requestBody.localTime) {
-        return new Response(JSON.stringify({ 
-          error: 'Invalid request body: localTime field is required' 
+        return new Response(JSON.stringify({
+          error: 'Invalid request body: localTime field is required'
         }), {
           status: 400,
           headers: {
@@ -41,7 +44,12 @@ export default {
       }
 
       // Use Cloudflare Worker AI without streaming
-      const prompt = `你是一个睡眠教练，任务是通过对话帮助我改善睡眠习惯。当前时间是${requestBody.localTime}，请在晚上11点后温和但坚定地督促我上床休息。保持语气关心、支持。并提供2-3个具体的睡前放松建议。回复要简短，不超过100字。`;
+      let prompt;
+      if (type === 'praise') {
+        prompt = `你是一个睡眠教练，任务是通过对话帮助我改善睡眠习惯。当前时间是${requestBody.localTime}，用户决定现在就去睡觉。请积极鼓励用户的这个决定，称赞他们照顾自己健康的行为，并祝愿他们有个好梦。保持语气温暖、鼓励。回复要简短，不超过100字。`;
+      } else {
+        prompt = `你是一个睡眠教练，任务是通过对话帮助我改善睡眠习惯。当前时间是${requestBody.localTime}，请在晚上11点后温和但坚定地督促我上床休息。保持语气关心、支持。并提供2-3个具体的睡前放松建议。回复要简短，不超过100字。`;
+      }
       
       const answer = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
         prompt: prompt,
