@@ -754,6 +754,26 @@
 
         /* Mobile-Friendly Card Layout for Records */
         @media (max-width: 600px) {
+            /* 强制移动端始终底部对齐，不管有没有 triggerButton */
+            #sleepConfigModal {
+                align-items: flex-end; /* 底部对齐 */
+                padding: 0;
+            }
+
+            #sleepConfigModal .modal-content {
+                width: 100%;
+                max-width: 100%;
+                border-radius: var(--radius-lg) var(--radius-lg) 0 0; /* 上方圆角 */
+                margin: 0;
+                animation: slideUp var(--transition-base) ease-in-out; /* 上滑动画 */
+            }
+
+            /* 定义上滑动画 */
+            @keyframes slideUp {
+                from { transform: translateY(100%); }
+                to { transform: translateY(0); }
+            }
+            
             .button-container {
                 flex-direction: column;
                 align-items: center;
@@ -1634,7 +1654,7 @@
 
         // 显示睡眠配置模态框
         function showSleepConfigModal(triggerButton) {
-            showModal('sleepConfigModal', '.preset-btn', triggerButton);
+            showModal('sleepConfigModal', '.preset-btn');
 
             // 更新当前选择状态
             document.querySelectorAll('.preset-btn').forEach(btn => {
