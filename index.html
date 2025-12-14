@@ -323,6 +323,37 @@
             animation: slideOutRight var(--transition-base) forwards;
         }
 
+        /* 鼓励话语样式 */
+        #encouragementText {
+            animation: fadeIn 0.5s ease-in-out;
+            box-shadow: var(--shadow-glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #encouragementText::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+            20% {
+                left: 100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
         /* Legacy #result for backward compatibility - hidden by default */
         #result {
             display: none !important;
@@ -850,6 +881,11 @@
             <button id="sleepNowBtn" class="btn btn--success btn--large">现在睡觉</button>
         </div>
 
+        <!-- 鼓励话语显示区域 -->
+        <div id="encouragementContainer" style="margin: 30px 0; min-height: 60px; display: flex; align-items: center; justify-content: center;">
+            <div id="encouragementText" style="font-size: 1.2em; line-height: 1.6; color: var(--color-text); text-align: center; max-width: 800px; padding: 20px; background: rgba(129, 140, 248, 0.1); border-radius: var(--radius-md); border: 1px solid rgba(129, 140, 248, 0.2); display: none;"></div>
+        </div>
+
         <!-- Legacy result div kept for backward compatibility -->
         <div id="result" aria-live="polite" aria-atomic="true"></div>
 
@@ -1028,6 +1064,23 @@
                     toast.parentNode.removeChild(toast);
                 }
             }, 200);
+        }
+
+        // 显示鼓励话语（不自动消失）
+        function showEncouragement(message) {
+            const encouragementText = document.getElementById('encouragementText');
+            encouragementText.textContent = message;
+            encouragementText.style.display = 'block';
+
+            // 添加淡入动画
+            encouragementText.style.opacity = '0';
+            encouragementText.style.transform = 'translateY(10px)';
+            encouragementText.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+
+            setTimeout(() => {
+                encouragementText.style.opacity = '1';
+                encouragementText.style.transform = 'translateY(0)';
+            }, 100);
         }
 
         // 模态框可访问性系统
@@ -1568,7 +1621,10 @@
                 if (!response.ok) throw new Error(`请求失败 (状态: ${response.status})`);
 
                 const data = await response.json();
-                showToast('info', `AI鼓励：${data.message}。将在 ${selectedReminderTime} 分钟后提醒你睡觉`, 5000);
+                // 显示鼓励话语在专门区域，不自动消失
+                showEncouragement(data.message);
+                // 只在toast中显示提醒信息
+                showToast('info', `将在 ${selectedReminderTime} 分钟后提醒你睡觉`, 3000);
 
                 // 设置提醒
                 scheduleReminder();
@@ -1603,6 +1659,10 @@
 
             // 隐藏睡眠提醒弹窗（如果正在显示）
             hideSleepReminder();
+
+            // 隐藏鼓励话语
+            const encouragementText = document.getElementById('encouragementText');
+            encouragementText.style.display = 'none';
 
             // 显示确认消息
             showToast('success', '晚安！好好休息，做个好梦！', 3000);
