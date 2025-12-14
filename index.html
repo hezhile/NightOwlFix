@@ -584,7 +584,8 @@
             height: 0;
             border-left: 10px solid transparent;
             border-right: 10px solid transparent;
-            border-top: 10px solid var(--color-surface-overlay);
+            border-bottom: 10px solid var(--color-surface-overlay);
+            border-top: none;
             z-index: 1001;
         }
 
@@ -1596,31 +1597,30 @@
 
             // 计算位置（优先在按钮左侧）
             let left = buttonRect.left - modalWidth - gap;
-            let top = buttonRect.top + (buttonRect.height / 2) - (modalHeight / 2);
+            // 将模态框底部定位在按钮上方（不是居中）
+            let top = buttonRect.top - modalHeight - gap;
+
+            // 确保模态框不会超出视口顶部
+            if (top < gap) {
+                top = gap;
+            }
 
             // 如果超出左边界则调整
             if (left < gap) {
                 left = buttonRect.right + gap;
-                // 在左侧放置箭头
+                // 在左下角放置箭头
                 const arrow = document.createElement('div');
                 arrow.className = 'modal-arrow';
                 arrow.style.left = '-10px';
-                arrow.style.top = (buttonRect.top - top + buttonRect.height / 2 - 5) + 'px';
+                arrow.style.bottom = (viewportHeight - buttonRect.top + gap) + 'px';
                 modalContent.appendChild(arrow);
             } else {
-                // 在右侧放置箭头
+                // 在右下角放置箭头
                 const arrow = document.createElement('div');
                 arrow.className = 'modal-arrow';
                 arrow.style.right = '-10px';
-                arrow.style.top = (buttonRect.top - top + buttonRect.height / 2 - 5) + 'px';
+                arrow.style.bottom = (viewportHeight - buttonRect.top + gap) + 'px';
                 modalContent.appendChild(arrow);
-            }
-
-            // 如果需要，调整垂直位置
-            if (top < gap) {
-                top = gap;
-            } else if (top + modalHeight > viewportHeight - gap) {
-                top = viewportHeight - modalHeight - gap;
             }
 
             // 应用定位
