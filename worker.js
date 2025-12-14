@@ -51,7 +51,7 @@ export default {
         prompt = `你是一个睡眠教练，任务是通过对话帮助我改善睡眠习惯。当前时间是${requestBody.localTime}，请在晚上11点后温和但坚定地督促我上床休息。保持语气关心、支持。并提供2-3个具体的睡前放松建议。回复要简短，不超过100字。`;
       }
       
-      const answer = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+      const answer = await env.AI.run('@cf/qwen/qwen3-30b-a3b-fp8', {
         prompt: prompt,
         stream: false
       });
