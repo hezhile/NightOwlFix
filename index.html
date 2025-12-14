@@ -125,10 +125,12 @@
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s ease;
+            color: #333;
         }
         
         .time-option:hover {
             background: #e0e0e0;
+            color: #333;
         }
         
         .time-option.selected {
@@ -281,12 +283,14 @@
             transition: all 0.3s ease;
             font-size: 14px;
             line-height: 1.4;
+            color: #333;
         }
 
         .preset-btn:hover, .welcome-preset-btn:hover {
             background: #e9ecef;
             border-color: #2196F3;
             transform: translateY(-2px);
+            color: #333;
         }
 
         .preset-btn.selected, .welcome-preset-btn.selected {
@@ -315,7 +319,16 @@
             background: #1976D2;
             transform: scale(1.1);
         }
-        
+
+        /* 焦点样式 - 提高键盘导航的可访问性 */
+        .time-option:focus,
+        .preset-btn:focus,
+        .welcome-preset-btn:focus,
+        button:focus {
+            outline: 2px solid #2196F3;
+            outline-offset: 2px;
+        }
+
         @media (max-width: 600px) {
             .button-container {
                 flex-direction: column;
