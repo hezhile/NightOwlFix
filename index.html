@@ -6,46 +6,66 @@
     <title>睡眠鼓励器</title>
     <style>
         :root {
-            --color-bg: #f5f7fb;
-            --color-surface: #ffffff;
-            --color-text: #222;
-            --color-text-weak: #666;
-            --color-primary: #2b6ff3;
-            --color-primary-hover: #1e5ad8;
-            --color-success: #11a683;
-            --color-success-hover: #0e8f6d;
-            --color-warning: #f5a623;
-            --color-border: #e6e8ef;
-            --color-bg-overlay: rgba(0, 0, 0, 0.7);
-            --color-surface-overlay: #ffffff;
-            --color-notification-bg: #fff3cd;
-            --color-notification-border: #ffc107;
-            --radius-sm: 8px;
+            /* 深色夜间主题 */
+            --color-bg-gradient-start: #0f172a; /* 深夜蓝 */
+            --color-bg-gradient-end: #1e1b4b;   /* 深紫蓝 */
+            --color-surface: rgba(30, 41, 59, 0.6); /* 玻璃态容器背景 */
+            --color-surface-border: rgba(255, 255, 255, 0.1);
+            --color-text: #f1f5f9;              /* 亮灰白文字 */
+            --color-text-weak: #94a3b8;         /* 蓝灰次要文字 */
+
+            /* 按钮颜色 */
+            --color-primary: #818cf8;           /* 柔和靛蓝 */
+            --color-success: #10b981;           /* 翡翠绿 */
+            --color-success-hover: #059669;
+
+            /* 形状系统 - 关键修改 */
+            --radius-btn: 16px;                 /* 按钮改为微圆角矩形，不再是椭圆 */
             --radius-md: 12px;
-            --radius-lg: 20px;
-            --radius-full: 50%;
-            --shadow-1: 0 6px 20px rgba(0,0,0,.08);
-            --shadow-2: 0 12px 32px rgba(0,0,0,.12);
-            --shadow-fab: 0 2px 10px rgba(0,0,0,0.3);
+            --radius-lg: 24px;
+
+            /* 阴影系统 */
+            --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            --shadow-btn-inner: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+            --shadow-glow: 0 0 20px rgba(129, 140, 248, 0.3);
+
+            /* 其他保持不变的变量 */
             --spacing-xs: 5px;
             --spacing-sm: 10px;
             --spacing-md: 15px;
             --spacing-lg: 20px;
             --spacing-xl: 25px;
             --spacing-xxl: 30px;
-            --font-family: 'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', 'Segoe UI', -apple-system, system-ui, sans-serif;
-            --transition-fast: 0.2s ease;
-            --transition-base: 0.3s ease;
+            --font-family: 'Inter', system-ui, sans-serif;
+            --transition-base: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             --z-modal: 1000;
             --z-toast: 1100;
             --z-fab: 100;
+
+            /* 兼容旧变量的别名 */
+            --color-bg: var(--color-surface);
+            --color-primary-hover: var(--color-primary);
+            --color-warning: #f59e0b;
+            --color-border: rgba(255, 255, 255, 0.1);
+            --color-bg-overlay: rgba(0, 0, 0, 0.7);
+            --color-surface-overlay: var(--color-surface);
+            --color-notification-bg: rgba(245, 158, 11, 0.1);
+            --color-notification-border: var(--color-warning);
+            --radius-sm: 8px;
+            --radius-full: 50%;
+            --shadow-1: var(--shadow-glass);
+            --shadow-2: 0 12px 40px rgba(0, 0, 0, 0.4);
+            --shadow-fab: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --transition-fast: 0.2s ease;
         }
 
         body {
             font-family: var(--font-family);
             text-align: center;
             padding: 30px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* 深色渐变背景 */
+            background: linear-gradient(135deg, var(--color-bg-gradient-start) 0%, var(--color-bg-gradient-end) 100%);
+            color: var(--color-text);
             min-height: 100vh;
             margin: 0;
             line-height: 1.6;
@@ -54,16 +74,25 @@
         .container {
             max-width: 900px;
             margin: 0 auto;
+            /* 毛玻璃效果 */
             background: var(--color-surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--color-surface-border);
             border-radius: var(--radius-lg);
             padding: 40px;
-            box-shadow: var(--shadow-2);
+            box-shadow: var(--shadow-glass);
         }
 
         h1 {
             color: var(--color-text);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
             margin-bottom: 10px;
             font-size: clamp(22px, 4vw, 32px);
+        }
+
+        p {
+            color: var(--color-text-weak);
         }
 
         h1::before {
@@ -79,26 +108,25 @@
 
         /* Button System */
         .btn {
-            padding: 12px 20px;
-            border-radius: var(--radius-md);
-            border: 1px solid transparent;
-            background: var(--color-surface);
-            color: var(--color-text);
-            box-shadow: var(--shadow-1);
-            transition: var(--transition-base);
-            cursor: pointer;
-            font-family: inherit;
+            padding: 14px 28px;
+            border-radius: var(--radius-btn); /* 使用 16px 圆角 */
+            border: 1px solid rgba(255, 255, 255, 0.1);
             font-size: 16px;
             font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: var(--transition-base);
+            position: relative;
+            overflow: hidden;
+            color: white;
         }
 
         .btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-2);
         }
 
         .btn:active {
-            transform: translateY(-1px);
+            transform: scale(0.98);
         }
 
         .btn:disabled {
@@ -108,61 +136,68 @@
             transform: none;
         }
 
-        .btn--primary {
-            background: var(--color-primary);
-            color: white;
-        }
-
-        .btn--primary:hover:not(:disabled) {
-            background: var(--color-primary-hover);
-        }
-
+        /* 主操作按钮 - 绿色发光宝石质感 */
         .btn--success {
-            background: var(--color-success);
-            color: white;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4), var(--shadow-btn-inner);
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
         .btn--success:hover:not(:disabled) {
-            background: var(--color-success-hover);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5), var(--shadow-btn-inner);
         }
 
+        /* 次要按钮 - 半透明玻璃质感 */
+        .btn--primary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--color-text);
+            box-shadow: var(--shadow-btn-inner);
+        }
+
+        .btn--primary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 轮廓按钮 */
         .btn--outline {
             background: transparent;
-            border-color: var(--color-border);
-            color: var(--color-text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--color-text-weak);
         }
-
-        .btn--outline:hover:not(:disabled) {
-            background: var(--color-bg);
+        .btn--outline:hover {
+            border-color: var(--color-primary);
+            color: var(--color-text);
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .btn--large {
             padding: 15px 35px;
             font-size: 18px;
-            border-radius: var(--radius-full);
+            border-radius: var(--radius-btn); /* 使用微圆角而非完全圆角 */
         }
 
         /* Legacy button support for backward compatibility */
         button:not([class*="btn"]) {
-            padding: 15px 35px;
-            font-size: 18px;
-            background: var(--color-primary);
-            color: white;
-            border: none;
-            border-radius: var(--radius-full);
+            padding: 14px 28px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--color-text);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-btn);
             cursor: pointer;
             transition: var(--transition-base);
             font-weight: 600;
-            box-shadow: var(--shadow-1);
+            box-shadow: var(--shadow-btn-inner);
         }
 
         button:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-2);
+            background: rgba(255, 255, 255, 0.15);
         }
 
         button:active {
-            transform: translateY(-1px);
+            transform: scale(0.98);
         }
 
         button:disabled {
@@ -173,11 +208,13 @@
         }
 
         .sleep-now-btn {
-            background: var(--color-success) !important;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4), var(--shadow-btn-inner) !important;
+            border-color: rgba(255, 255, 255, 0.2) !important;
         }
 
         .sleep-now-btn:hover:not(:disabled) {
-            background: var(--color-success-hover) !important;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5), var(--shadow-btn-inner) !important;
         }
 
         /* Toast Component System */
@@ -295,9 +332,9 @@
         .time-selector {
             margin: var(--spacing-xxl) 0;
             padding: var(--spacing-lg);
-            background: var(--color-surface);
+            background: rgba(0, 0, 0, 0.1);
             border-radius: var(--radius-md);
-            box-shadow: var(--shadow-1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .time-selector h3 {
@@ -306,32 +343,29 @@
         }
 
         .time-options {
-            display: flex;
-            justify-content: center;
-            gap: var(--spacing-md);
-            flex-wrap: wrap;
+            display: inline-flex;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 6px;
+            border-radius: 20px;
+            gap: 8px;
         }
 
         .chip {
-            padding: var(--spacing-sm) var(--spacing-lg);
-            background: var(--color-bg);
-            border: 2px solid var(--color-border);
-            border-radius: var(--radius-full);
-            cursor: pointer;
-            transition: var(--transition-base);
-            color: var(--color-text);
-            font-family: inherit;
-            font-size: 14px;
+            background: transparent;
+            border: none;
+            color: var(--color-text-weak);
+            padding: 10px 24px;
+            border-radius: 14px; /* 微圆角 */
             font-weight: 500;
-            min-width: 60px;
+            transition: all 0.2s ease;
+            min-width: 80px;
             position: relative;
         }
 
         .chip:hover {
-            background: var(--color-surface);
-            border-color: var(--color-primary);
-            color: var(--color-primary);
-            transform: translateY(-1px);
+            color: var(--color-text);
+            background: rgba(255, 255, 255, 0.05);
+            transform: none;
         }
 
         .chip:focus {
@@ -342,15 +376,9 @@
         .chip.selected {
             background: var(--color-primary);
             color: white;
-            border-color: var(--color-primary);
-            font-weight: 600;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
-
-        .chip.selected::after {
-            content: ' ✓';
-            font-size: 12px;
-            opacity: 0.9;
-        }
+        .chip.selected::after { content: ''; } /* 移除原本的勾号文字 */
 
         .chip:disabled {
             opacity: 0.5;
@@ -359,8 +387,7 @@
         }
 
         .chip:disabled:hover {
-            background: var(--color-bg);
-            border-color: var(--color-border);
+            background: transparent;
             color: var(--color-text-weak);
         }
         
@@ -397,41 +424,76 @@
             cursor: not-allowed;
         }
         
-        .records-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .records-table th,
-        .records-table td {
-            padding: 12px;
+        /* 隐藏旧表格 */
+        .records-table { display: none; }
+
+        /* 时间轴样式 */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+            margin-top: 20px;
             text-align: left;
-            border-bottom: 1px solid #eee;
         }
-        
-        .records-table th {
-            background: #f8f9fa;
-            font-weight: bold;
-            color: #333;
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.1);
         }
-        
-        .records-table tr:hover {
-            background: #f5f5f5;
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+            animation: slideInRight 0.3s ease;
         }
-        
+
+        .timeline-dot {
+            position: absolute;
+            left: -29px;
+            top: 5px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--color-bg-gradient-start);
+            border: 2px solid var(--color-text-weak);
+            z-index: 1;
+        }
+
+        .timeline-dot.sleep {
+            border-color: var(--color-success);
+            box-shadow: 0 0 10px var(--color-success);
+            background: var(--color-success);
+        }
+
+        .timeline-content {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .timeline-time { font-size: 13px; color: var(--color-primary); font-weight: 600; }
+        .timeline-title { font-size: 15px; color: var(--color-text); }
+
         .date-section {
             margin-bottom: 30px;
         }
-        
+
         .date-header {
-            background: #2196F3;
-            color: white;
-            padding: 10px;
+            background: rgba(129, 140, 248, 0.2);
+            color: var(--color-text);
+            padding: 10px 15px;
             font-weight: bold;
+            border-radius: 8px;
+            border: 1px solid rgba(129, 140, 248, 0.3);
+            margin-bottom: 20px;
         }
         
         /* Modal System */
@@ -1051,7 +1113,7 @@
             });
         }
 
-        // 记录显示系统（支持移动端卡片）
+        // 记录显示系统（使用时间轴布局）
         function displayRecords(groupedRecords, dates) {
             const container = document.getElementById('recordsContainer');
             container.innerHTML = '';
@@ -1061,24 +1123,51 @@
                 return;
             }
 
-            const isMobile = window.innerWidth <= 600;
-
             dates.forEach(date => {
                 if (!groupedRecords[date] || groupedRecords[date].length === 0) {
                     return;
                 }
 
-                if (isMobile) {
-                    // 移动端卡片布局
-                    groupedRecords[date].forEach(record => {
-                        const card = createRecordCard(record);
-                        container.appendChild(card);
-                    });
-                } else {
-                    // 桌面端表格布局
-                    const dateSection = createDateSection(date, groupedRecords[date]);
-                    container.appendChild(dateSection);
-                }
+                // 创建日期区域
+                const dateSection = document.createElement('div');
+                dateSection.className = 'date-section';
+
+                // 创建日期标题
+                const dateHeader = document.createElement('div');
+                dateHeader.className = 'date-header';
+                dateHeader.textContent = formatDate(date);
+                dateSection.appendChild(dateHeader);
+
+                // 创建时间轴
+                const timeline = document.createElement('div');
+                timeline.className = 'timeline';
+
+                // 按时间排序记录
+                const sortedRecords = groupedRecords[date].sort((a, b) => {
+                    return new Date(a.timestamp) - new Date(b.timestamp);
+                });
+
+                // 添加每个记录到时间轴
+                sortedRecords.forEach(record => {
+                    const timelineItem = document.createElement('div');
+                    timelineItem.className = 'timeline-item';
+
+                    // 判断是否为睡眠记录
+                    const isSleepRecord = record.type.includes('睡觉') || record.type.includes('休息');
+
+                    timelineItem.innerHTML = `
+                        <div class="timeline-dot ${isSleepRecord ? 'sleep' : ''}"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-title">${record.type}</span>
+                            <span class="timeline-time">${record.time}</span>
+                        </div>
+                    `;
+
+                    timeline.appendChild(timelineItem);
+                });
+
+                dateSection.appendChild(timeline);
+                container.appendChild(dateSection);
             });
         }
 
@@ -1857,7 +1946,7 @@
 
             // 如果没有记录，显示提示
             if (dates.length === 0) {
-                container.innerHTML = '<p style="text-align: center; padding: 20px; color: #666;">暂无睡眠记录</p>';
+                container.innerHTML = '<p style="text-align: center; padding: var(--spacing-xl); color: var(--color-text-weak);">暂无睡眠记录</p>';
                 return;
             }
 
@@ -1876,33 +1965,35 @@
                 dateHeader.textContent = formatDate(date);
                 dateSection.appendChild(dateHeader);
 
-                // 创建记录表格
-                const table = document.createElement('table');
-                table.className = 'records-table';
+                // 创建时间轴
+                const timeline = document.createElement('div');
+                timeline.className = 'timeline';
 
-                // 创建表头
-                const thead = document.createElement('thead');
-                thead.innerHTML = `
-                    <tr>
-                        <th>事件</th>
-                        <th>时间</th>
-                    </tr>
-                `;
-                table.appendChild(thead);
-
-                // 创建表体
-                const tbody = document.createElement('tbody');
-                groupedRecords[date].forEach(record => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${record.type}</td>
-                        <td>${record.time}</td>
-                    `;
-                    tbody.appendChild(row);
+                // 按时间排序记录
+                const sortedRecords = groupedRecords[date].sort((a, b) => {
+                    return new Date(a.timestamp) - new Date(b.timestamp);
                 });
-                table.appendChild(tbody);
 
-                dateSection.appendChild(table);
+                // 添加每个记录到时间轴
+                sortedRecords.forEach(record => {
+                    const timelineItem = document.createElement('div');
+                    timelineItem.className = 'timeline-item';
+
+                    // 判断是否为睡眠记录
+                    const isSleepRecord = record.type.includes('睡觉') || record.type.includes('休息');
+
+                    timelineItem.innerHTML = `
+                        <div class="timeline-dot ${isSleepRecord ? 'sleep' : ''}"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-title">${record.type}</span>
+                            <span class="timeline-time">${record.time}</span>
+                        </div>
+                    `;
+
+                    timeline.appendChild(timelineItem);
+                });
+
+                dateSection.appendChild(timeline);
                 container.appendChild(dateSection);
             });
         }
