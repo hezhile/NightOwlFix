@@ -270,6 +270,51 @@
             from { transform: translateY(-50px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
+
+        /* 睡眠配置相关样式 */
+        .preset-btn, .welcome-preset-btn {
+            padding: 15px;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .preset-btn:hover, .welcome-preset-btn:hover {
+            background: #e9ecef;
+            border-color: #2196F3;
+            transform: translateY(-2px);
+        }
+
+        .preset-btn.selected, .welcome-preset-btn.selected {
+            background: #2196F3;
+            color: white;
+            border-color: #2196F3;
+        }
+
+        .welcome-preset-btn {
+            padding: 20px 15px;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        #customHour:focus {
+            outline: none;
+            border-color: #1976D2;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        /* 设置按钮悬浮效果 */
+        #settingsBtn:hover {
+            background: #1976D2;
+            transform: scale(1.1);
+        }
         
         @media (max-width: 600px) {
             .button-container {
@@ -345,6 +390,90 @@
             <button id="acknowledgeBtn" class="acknowledge-btn">知道了</button>
         </div>
     </div>
+
+    <!-- 睡眠时间配置模态框 -->
+    <div id="sleepConfigModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2>⚙️ 睡眠时间设置</h2>
+            <p style="margin-bottom: 25px;">选择您的睡眠日开始时间，这个时间之前的操作将记录在前一天。</p>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 10px; font-weight: 500;">选择预设：</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="preset-btn" data-hour="4">早起型<br><small>04:00开始</small></button>
+                    <button class="preset-btn" data-hour="6">普通型<br><small>06:00开始</small></button>
+                    <button class="preset-btn" data-hour="9">夜猫子型<br><small>09:00开始</small></button>
+                    <button class="preset-btn" data-hour="12">深夜型<br><small>12:00开始</small></button>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <label for="customHour" style="display: block; margin-bottom: 10px; font-weight: 500;">或自定义时间：</label>
+                <select id="customHour" style="padding: 8px 15px; border-radius: 5px; border: 2px solid #2196F3; font-size: 14px; width: 100%;">
+                    <option value="">请选择小时</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 20px; padding: 15px; background: #f0f8ff; border-radius: 8px;">
+                <p style="margin: 0; font-size: 14px; color: #666;">
+                    <strong>示例：</strong>如果您选择06:00，那么凌晨04:00的操作将记录在前一天，而08:00的操作记录在今天。
+                </p>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button id="cancelConfigBtn" style="background: #ccc; padding: 10px 20px;">取消</button>
+                <button id="saveConfigBtn" class="acknowledge-btn">保存设置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 首次使用引导模态框 -->
+    <div id="welcomeModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2>👋 欢迎使用睡眠鼓励器</h2>
+            <p style="margin-bottom: 25px;">请选择您的睡眠习惯，这样我们可以更好地记录您的睡眠数据。</p>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 15px; font-weight: 500;">您通常几点睡觉？</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="welcome-preset-btn" data-hour="4">
+                        <div style="font-size: 24px; margin-bottom: 5px;">🌅</div>
+                        早起型<br><small>21:00-05:00</small>
+                    </button>
+                    <button class="welcome-preset-btn" data-hour="6">
+                        <div style="font-size: 24px; margin-bottom: 5px;">☀️</div>
+                        普通型<br><small>22:00-07:00</small>
+                    </button>
+                    <button class="welcome-preset-btn" data-hour="9">
+                        <div style="font-size: 24px; margin-bottom: 5px;">🌙</div>
+                        夜猫子型<br><small>00:00-10:00</small>
+                    </button>
+                    <button class="welcome-preset-btn" data-hour="12">
+                        <div style="font-size: 24px; margin-bottom: 5px;">🦉</div>
+                        深夜型<br><small>02:00-12:00</small>
+                    </button>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <p style="margin: 0; font-size: 14px; color: #666;">
+                    💡 选择睡眠日开始时间，这个时间之前的活动都会算作前一天的睡眠记录。
+                </p>
+            </div>
+
+            <button id="startUsingBtn" class="acknowledge-btn" style="width: 100%;">开始使用</button>
+        </div>
+    </div>
+    </div>
+
+    <!-- 设置按钮和状态显示 -->
+    <div style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; align-items: flex-end;">
+        <div id="sleepDayStatus" style="background: rgba(0,0,0,0.7); color: white; padding: 8px 15px; border-radius: 20px; font-size: 14px; max-width: 200px; text-align: right;">
+            睡眠日: 06:00起
+        </div>
+        <button id="settingsBtn" style="background: #2196F3; color: white; width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 20px;">
+            ⚙️
+        </button>
     </div>
 
     <script>
@@ -353,6 +482,8 @@
         let selectedReminderTime = 5; // 默认5分钟
         let currentPage = 1;
         let reminderTimeout;
+        let sleepDayStartHour = 6; // 默认睡眠日开始时间（06:00）
+        let selectedSleepConfig = 6; // 当前选择的睡眠配置
 
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
@@ -363,6 +494,9 @@
 
         // 初始化应用
         function initializeApp() {
+            // 初始化睡眠配置
+            initializeSleepConfig();
+
             // 记录用户首次打开网页（只记录一次）
             if (!localStorage.getItem('hasVisited')) {
                 recordEvent('首次打开网页');
@@ -381,11 +515,17 @@
             // 检查今天是否已经睡觉
             checkTodaySleepStatus();
 
-            // 安排在10:00自动重置睡眠状态
-            scheduleResetAt10AM();
+            // 安排睡眠状态重置（使用配置的时间）
+            scheduleResetAtConfiguredTime();
 
             // 检查通知权限
             checkNotificationPermission();
+
+            // 填充自定义时间选项
+            populateCustomHourOptions();
+
+            // 显示睡眠状态
+            updateSleepDayStatus();
         }
 
         // 设置事件监听器
@@ -419,6 +559,29 @@
 
             // 测试按钮
             document.getElementById('testBtn').addEventListener('click', testAPI);
+
+            // 设置按钮
+            document.getElementById('settingsBtn').addEventListener('click', showSleepConfigModal);
+
+            // 睡眠配置模态框按钮
+            document.getElementById('saveConfigBtn').addEventListener('click', saveSleepConfig);
+            document.getElementById('cancelConfigBtn').addEventListener('click', hideSleepConfigModal);
+
+            // 预设选项按钮
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.addEventListener('click', handlePresetSelection);
+            });
+
+            // 自定义时间选择
+            document.getElementById('customHour').addEventListener('change', handleCustomHourSelection);
+
+            // 首次使用引导按钮
+            document.getElementById('startUsingBtn').addEventListener('click', handleWelcomeStart);
+
+            // 欢迎页面预设按钮
+            document.querySelectorAll('.welcome-preset-btn').forEach(btn => {
+                btn.addEventListener('click', handleWelcomePresetSelection);
+            });
         }
 
         // 处理日期选择变化
@@ -428,6 +591,190 @@
                 currentPage = parseInt(e.target.selectedIndex) + 1;
                 loadRecords();
             }
+        }
+
+        // ============= 睡眠配置管理功能 =============
+
+        // 初始化睡眠配置
+        function initializeSleepConfig() {
+            // 检查是否已经配置过睡眠时间
+            const hasConfigured = localStorage.getItem('hasConfiguredSleepTime');
+
+            if (!hasConfigured) {
+                // 首次使用，显示欢迎引导
+                setTimeout(() => {
+                    showWelcomeModal();
+                }, 500);
+            } else {
+                // 加载已保存的配置
+                const savedHour = localStorage.getItem('sleepDayStartHour');
+                if (savedHour) {
+                    sleepDayStartHour = parseInt(savedHour);
+                    selectedSleepConfig = sleepDayStartHour;
+                }
+            }
+        }
+
+        // 显示欢迎模态框
+        function showWelcomeModal() {
+            document.getElementById('welcomeModal').style.display = 'flex';
+        }
+
+        // 处理欢迎页面预设选择
+        function handleWelcomePresetSelection(e) {
+            const hour = parseInt(e.currentTarget.dataset.hour);
+
+            // 移除其他选中状态
+            document.querySelectorAll('.welcome-preset-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            // 添加选中状态
+            e.currentTarget.classList.add('selected');
+            selectedSleepConfig = hour;
+        }
+
+        // 处理开始使用按钮
+        function handleWelcomeStart() {
+            if (selectedSleepConfig === 6 && !document.querySelector('.welcome-preset-btn.selected')) {
+                alert('请选择您的睡眠类型');
+                return;
+            }
+
+            // 保存配置
+            sleepDayStartHour = selectedSleepConfig;
+            localStorage.setItem('sleepDayStartHour', sleepDayStartHour.toString());
+            localStorage.setItem('hasConfiguredSleepTime', 'true');
+
+            // 记录配置事件
+            recordEvent(`设置睡眠时间: ${sleepDayStartHour}:00`);
+
+            // 更新显示
+            updateSleepDayStatus();
+
+            // 隐藏欢迎模态框
+            hideWelcomeModal();
+        }
+
+        // 隐藏欢迎模态框
+        function hideWelcomeModal() {
+            document.getElementById('welcomeModal').style.display = 'none';
+        }
+
+        // 显示睡眠配置模态框
+        function showSleepConfigModal() {
+            document.getElementById('sleepConfigModal').style.display = 'flex';
+
+            // 更新当前选择状态
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.remove('selected');
+                if (parseInt(btn.dataset.hour) === sleepDayStartHour) {
+                    btn.classList.add('selected');
+                }
+            });
+
+            // 更新自定义时间选择器
+            document.getElementById('customHour').value = sleepDayStartHour;
+        }
+
+        // 隐藏睡眠配置模态框
+        function hideSleepConfigModal() {
+            document.getElementById('sleepConfigModal').style.display = 'none';
+        }
+
+        // 处理预设选择
+        function handlePresetSelection(e) {
+            const hour = parseInt(e.currentTarget.dataset.hour);
+
+            // 移除其他选中状态
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            // 添加选中状态
+            e.currentTarget.classList.add('selected');
+            selectedSleepConfig = hour;
+
+            // 更新自定义时间选择器
+            document.getElementById('customHour').value = hour;
+        }
+
+        // 处理自定义时间选择
+        function handleCustomHourSelection(e) {
+            const hour = parseInt(e.target.value);
+            if (hour) {
+                selectedSleepConfig = hour;
+
+                // 移除预设按钮的选中状态
+                document.querySelectorAll('.preset-btn').forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+            }
+        }
+
+        // 保存睡眠配置
+        function saveSleepConfig() {
+            // 验证选择
+            if (!selectedSleepConfig && selectedSleepConfig !== 0) {
+                alert('请选择睡眠日开始时间');
+                return;
+            }
+
+            // 更新配置
+            sleepDayStartHour = selectedSleepConfig;
+            localStorage.setItem('sleepDayStartHour', sleepDayStartHour.toString());
+
+            // 记录配置事件
+            recordEvent(`修改睡眠时间: ${sleepDayStartHour}:00`);
+
+            // 更新显示
+            updateSleepDayStatus();
+
+            // 重新安排重置时间
+            scheduleResetAtConfiguredTime();
+
+            // 隐藏配置模态框
+            hideSleepConfigModal();
+
+            // 显示成功提示
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<strong>✅ 设置已保存</strong><br>睡眠日将在 ${sleepDayStartHour.toString().padStart(2, '0')}:00 开始`;
+            resultDiv.style.display = 'block';
+
+            setTimeout(() => {
+                resultDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // 填充自定义时间选项
+        function populateCustomHourOptions() {
+            const select = document.getElementById('customHour');
+
+            for (let i = 0; i <= 23; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `${i.toString().padStart(2, '0')}:00`;
+                select.appendChild(option);
+            }
+        }
+
+        // 更新睡眠日状态显示
+        function updateSleepDayStatus() {
+            const statusDiv = document.getElementById('sleepDayStatus');
+            const now = new Date();
+            const hours = now.getHours();
+
+            // 判断当前属于哪个睡眠日
+            let statusText;
+            if (hours < sleepDayStartHour) {
+                const yesterday = new Date(now);
+                yesterday.setDate(yesterday.getDate() - 1);
+                statusText = `昨日睡眠日 (${sleepDayStartHour.toString().padStart(2, '0')}:00起)`;
+            } else {
+                statusText = `今日睡眠日 (${sleepDayStartHour.toString().padStart(2, '0')}:00起)`;
+            }
+
+            statusDiv.textContent = statusText;
         }
 
         // 处理"等下再睡"按钮点击
@@ -577,13 +924,14 @@
             const now = new Date();
             const currentHour = now.getHours();
             const todaySleepDate = getSleepDate(now);
+            const resetHour = (sleepDayStartHour + 4) % 24;
 
-            // 判断当前时间是否已超过当天10:00
-            if (currentHour >= 10) {
-                // 如果超过10:00，清除今天的睡眠标记
+            // 判断当前时间是否已超过重置时间
+            if (currentHour >= resetHour) {
+                // 如果超过重置时间，清除今天的睡眠标记
                 resetTodaySleepStatus();
             } else {
-                // 如果未到10:00，检查是否有睡眠记录
+                // 如果未到重置时间，检查是否有睡眠记录
                 const sleepRecord = localStorage.getItem(`slept_${todaySleepDate}`);
                 if (sleepRecord) {
                     try {
@@ -690,25 +1038,26 @@
             document.getElementById('sleepModal').style.display = 'none';
         }
 
-        // 获取睡眠日期（22:00-02:00算作前一天）
+        // 获取睡眠日期（使用用户配置的时间）
         function getSleepDate(date) {
             const hours = date.getHours();
             const sleepDate = new Date(date);
 
-            // 如果是凌晨0点到2点，算作前一天
-            if (hours >= 0 && hours < 2) {
+            // 如果当前时间小于用户设定的睡眠日开始时间，算作前一天
+            if (hours < sleepDayStartHour) {
                 sleepDate.setDate(sleepDate.getDate() - 1);
             }
 
             return sleepDate.toDateString();
         }
 
-        // 获取当天10:00的时间戳
-        function getToday10AMTime() {
+        // 获取当天重置时间的时间戳（睡眠日开始时间+4小时）
+        function getTodayResetTime() {
             const now = new Date();
-            const tenAM = new Date(now);
-            tenAM.setHours(10, 0, 0, 0);
-            return tenAM.getTime();
+            const resetHour = (sleepDayStartHour + 4) % 24;
+            const resetTime = new Date(now);
+            resetTime.setHours(resetHour, 0, 0, 0);
+            return resetTime.getTime();
         }
 
         // 重置今天的睡眠状态
@@ -737,24 +1086,48 @@
             }
         }
 
-        // 安排在10:00自动重置睡眠状态
-        function scheduleResetAt10AM() {
+        // 安排在配置的时间自动重置睡眠状态
+        function scheduleResetAtConfiguredTime() {
             const now = new Date();
             const currentHour = now.getHours();
+            const resetHour = (sleepDayStartHour + 4) % 24;
 
-            // 只有在0:00-9:59之间才需要设置定时器
-            if (currentHour < 10) {
-                const tenAMTime = getToday10AMTime();
+            // 计算需要设置定时器的时间范围
+            let startHour = sleepDayStartHour;
+            let endHour = resetHour;
+
+            // 如果重置时间小于开始时间，说明跨天了
+            if (endHour <= startHour) {
+                endHour += 24;
+            }
+
+            // 判断当前时间是否在需要设置定时器的范围内
+            let adjustedCurrentHour = currentHour;
+            if (adjustedCurrentHour < startHour) {
+                adjustedCurrentHour += 24;
+            }
+
+            if (adjustedCurrentHour >= startHour && adjustedCurrentHour < endHour) {
+                const resetTime = getTodayResetTime();
                 const currentTime = now.getTime();
-                const delay = tenAMTime - currentTime;
+                let delay = resetTime - currentTime;
 
-                // 如果10:00还没到，设置定时器
+                // 如果重置时间已经过了（在今天），则设置为明天
+                if (delay <= 0) {
+                    const tomorrow = new Date(now);
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    tomorrow.setHours(resetHour, 0, 0, 0);
+                    delay = tomorrow.getTime() - currentTime;
+                }
+
                 if (delay > 0) {
-                    console.log(`将在 ${Math.round(delay / 1000 / 60)} 分钟后重置睡眠状态`);
+                    console.log(`将在 ${Math.round(delay / 1000 / 60)} 分钟后重置睡眠状态 (重置时间: ${resetHour}:00)`);
 
                     setTimeout(() => {
-                        console.log('10:00到达，自动重置睡眠状态');
+                        console.log(`${resetHour}:00到达，自动重置睡眠状态`);
                         resetTodaySleepStatus();
+                        // 重新安排下一次重置
+                        scheduleResetAtConfiguredTime();
                     }, delay);
                 }
             }
