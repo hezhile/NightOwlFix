@@ -389,7 +389,8 @@
             border-radius: 14px; /* 微圆角 */
             font-weight: 500;
             transition: all 0.2s ease;
-            min-width: 80px;
+            width: 100px; /* 固定宽度确保一致性 */
+            text-align: center;
             position: relative;
         }
 
@@ -408,6 +409,8 @@
             background: var(--color-primary);
             color: white;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
         }
         .chip.selected::after { content: ''; } /* 移除原本的勾号文字 */
 
