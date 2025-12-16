@@ -125,7 +125,7 @@ export default {
         // temperature: 0, // uncomment if supported to reduce hallucinations
       };
 
-      const answer = await env.AI.run('@cf/qwen/qwen1.5-1.8b-chat', aiOptions);
+      const answer = await env.AI.run('@cf/qwen/qwen3-30b-a3b-fp8', aiOptions);
 
       // Normalize model output: try common fields, fallback to stringified answer
       const modelText =
