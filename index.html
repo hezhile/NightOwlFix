@@ -1807,7 +1807,9 @@
                 hour: '2-digit',
                 minute: '2-digit',
                 hour12: false
-            });
+            });// "HH:mm"
+            const localHour = now.getHours(); // 0-23
+            const iso = now.toISOString();
 
             const originalText = btn.textContent;
             btn.textContent = '加载中...';
@@ -1817,7 +1819,7 @@
                 const response = await fetch('https://sleep.vuntun.app/api/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ localTime })
+                    body: JSON.stringify({ localTime, localHour, iso, type: 'urge' })
                 });
 
                 if (!response.ok) throw new Error(`请求失败 (状态: ${response.status})`);
