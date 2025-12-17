@@ -188,9 +188,21 @@
             color: var(--color-text);
         }
 
+        /* Optgroup 样式 - 用于下拉列表分组标签 */
+        select.form-control optgroup {
+            color: var(--color-text);
+            font-weight: 600;
+            background: var(--color-surface);
+        }
+
+        /* 确保在所有浏览器中 optgroup 标签可见 */
+        select.form-control optgroup::before {
+            color: var(--color-text);
+        }
+
         /* 暗色主题下的下拉箭头 */
         select.form-control {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23f1f5f9' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
         }
 
         /* Firefox 专用样式 */
@@ -204,7 +216,7 @@
             display: block;
             margin-top: var(--spacing-xs);
             font-size: 14px;
-            color: var(--color-text-weak);
+            color: #cbd5e1;
         }
 
         .prompt-info {
