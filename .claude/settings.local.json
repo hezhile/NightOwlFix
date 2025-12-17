@@ -5,7 +5,9 @@
       "Bash(git commit:*)",
       "Bash(curl:*)",
       "Bash(git push:*)",
-      "Bash(kill:*)"
+      "Bash(kill:*)",
+      "Bash(pip install:*)",
+      "Bash(python3:*)"
     ]
   }
 }

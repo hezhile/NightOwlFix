@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>睡眠 API 测试工具</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/test.css') }}">
+</head>
+<body>
+    <!-- Toast 通知容器 -->
+    <div id="toastStack" aria-live="polite" aria-label="通知消息"></div>
+
+    <div class="container">
+        <h1>🌙 睡眠 API 测试工具</h1>
+        <p class="subtitle">测试不同的模型和 Prompt 配置，找到最佳的睡眠鼓励方案</p>
+
+        <!-- 测试配置区域 -->
+        <div class="test-config card">
+            <h2>测试配置</h2>
+
+            <!-- 模型选择 -->
+            <div class="form-group">
+                <label for="modelSelect">选择模型：</label>
+                <select id="modelSelect" class="form-control">
+                    <option value="">请选择模型</option>
+                    {% for category, models in models.items() %}
+                        <optgroup label="{{ category }}">
+                            {% for model in models %}
+                                <option value="{{ model }}">{{ model }}</option>
+                            {% endfor %}
+                        </optgroup>
+                    {% endfor %}
+                </select>
+                <small class="form-hint">或输入自定义模型名称：</small>
+                <input type="text" id="customModelInput" class="form-control" placeholder="例如: my-custom-model">
+            </div>
+
+            <!-- Prompt 模板选择 -->
+            <div class="form-group">
+                <label for="templateSelect">Prompt 模板：</label>
+                <select id="templateSelect" class="form-control">
+                    <option value="">自定义 Prompt</option>
+                    {% for template in prompt_templates %}
+                        <option value="{{ template.id }}" data-type="{{ template.type }}">{{ template.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Prompt 输入 -->
+            <div class="form-group">
+                <label for="promptInput">Prompt 内容：</label>
+                <textarea id="promptInput" class="form-control" rows="10"
+                          placeholder="输入你的 Prompt，或选择上面的模板..."></textarea>
+                <div class="prompt-info">
+                    <span id="promptLength">0</span> 字符
+                    <button id="clearPromptBtn" class="btn-link">清空</button>
+                </div>
+            </div>
+
+            <!-- 时间设置 -->
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="timeInput">本地时间：</label>
+                    <input type="time" id="timeInput" class="form-control">
+                    <button id="currentTimeBtn" class="btn-link">使用当前时间</button>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="typeSelect">响应类型：</label>
+                    <select id="typeSelect" class="form-control">
+                        <option value="urge">督促提醒</option>
+                        <option value="praise">表扬鼓励</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 测试模式 -->
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="useMockCheckbox">
+                    <span class="checkmark"></span>
+                    使用模拟响应（快速测试，不调用真实API）
+                </label>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="button-group">
+                <button id="testBtn" class="btn btn-primary btn-large">
+                    <span class="btn-text">运行测试</span>
+                    <span class="btn-loader" style="display: none;">测试中...</span>
+                </button>
+                <button id="saveConfigBtn" class="btn btn-secondary">保存配置</button>
+                <button id="loadConfigBtn" class="btn btn-secondary">加载配置</button>
+            </div>
+        </div>
+
+        <!-- 响应显示区域 -->
+        <div id="responseArea" class="response-area card" style="display: none;">
+            <div class="card-header">
+                <h2>测试响应</h2>
+                <div class="response-meta">
+                    <span id="responseTime"></span>
+                    <span id="responseModel"></span>
+                    <span id="mockBadge" class="badge badge-warning" style="display: none;">模拟响应</span>
+                </div>
+            </div>
+            <div class="response-content">
+                <pre id="responseText"></pre>
+            </div>
+            <div class="response-actions">
+                <button id="copyResponseBtn" class="btn btn-sm btn-secondary">复制响应</button>
+                <button id="newTestBtn" class="btn btn-sm btn-primary">新建测试</button>
+            </div>
+        </div>
+
+        <!-- 最近测试记录 -->
+        <div class="recent-tests card">
+            <div class="card-header">
+                <h2>最近测试</h2>
+                <button id="refreshHistoryBtn" class="btn btn-sm btn-link">刷新</button>
+            </div>
+            <div id="recentTestsList">
+                {% if recent_tests %}
+                    {% for test in recent_tests %}
+                        <div class="test-item" data-id="{{ test.id }}">
+                            <div class="test-header">
+                                <span class="test-model">{{ test.model }}</span>
+                                <span class="test-time">{{ test.timestamp[:19].replace('T', ' ') }}</span>
+                            </div>
+                            <div class="test-type">
+                                <span class="badge {% if test.type == 'urge' %}badge-info{% else %}badge-success{% endif %}">
+                                    {{ test.type }}
+                                </span>
+                                {% if test.use_mock %}
+                                    <span class="badge badge-warning">模拟</span>
+                                {% endif %}
+                            </div>
+                            <div class="test-preview">
+                                {{ test.response[:100] }}{% if test.response|length > 100 %}...{% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="empty-state">暂无测试记录</p>
+                {% endif %}
+            </div>
+            <a href="#" id="viewAllHistoryBtn" class="btn btn-link">查看全部历史</a>
+        </div>
+    </div>
+
+    <!-- 模态框：保存测试配置 -->
+    <div id="saveConfigModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>保存测试配置</h3>
+                <button class="modal-close" id="closeSaveModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="configName">配置名称：</label>
+                    <input type="text" id="configName" class="form-control" placeholder="输入配置名称...">
+                </div>
+                <div class="form-group">
+                    <label for="configNotes">备注：</label>
+                    <textarea id="configNotes" class="form-control" rows="3" placeholder="添加配置备注..."></textarea>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="cancelSaveConfigBtn" class="btn btn-secondary">取消</button>
+                <button id="confirmSaveConfigBtn" class="btn btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/test.js') }}"></script>
+</body>
+</html>
