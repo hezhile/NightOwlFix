@@ -5,18 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>睡眠 API 测试工具</title>
     <style>
-        /* 继承原应用的暗色主题和样式系统 */
+        /* 继承原应用的样式系统 */
         :root {
-            /* 深色夜间主题 */
-            --color-bg-gradient-start: #0f172a; /* 深夜蓝 */
-            --color-bg-gradient-end: #1e1b4b;   /* 深紫蓝 */
-            --color-surface: rgba(30, 41, 59, 0.6); /* 玻璃态容器背景 */
-            --color-surface-border: rgba(255, 255, 255, 0.1);
-            --color-text: #f1f5f9;              /* 亮灰白文字 */
-            --color-text-weak: #94a3b8;         /* 蓝灰次要文字 */
+            /* 浅色白天主题 */
+            --color-bg-gradient-start: #f8fafc; /* 浅灰蓝 */
+            --color-bg-gradient-end: #e2e8f0;   /* 浅蓝灰 */
+            --color-surface: rgba(255, 255, 255, 0.95); /* 白色容器背景 */
+            --color-surface-border: rgba(0, 0, 0, 0.1);
+            --color-text: #1e293b;              /* 深色文字 */
+            --color-text-weak: #64748b;         /* 灰色次要文字 */
 
             /* 按钮颜色 */
-            --color-primary: #818cf8;           /* 柔和靛蓝 */
+            --color-primary: #3b82f6;           /* 蓝色 */
             --color-success: #10b981;           /* 翡翠绿 */
             --color-warning: #f59e0b;           /* 橙色 */
             --color-danger: #ef4444;            /* 红色 */
@@ -30,9 +30,9 @@
             --radius-full: 50%;
 
             /* 阴影系统 */
-            --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            --shadow-btn-inner: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -2px 0 rgba(0, 0, 0, 0.1);
-            --shadow-glow: 0 0 20px rgba(129, 140, 248, 0.3);
+            --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+            --shadow-btn-inner: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.15);
 
             /* 间距系统 */
             --spacing-xs: 5px;
@@ -147,8 +147,8 @@
         .form-control {
             width: 100%;
             padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: var(--radius-md);
             color: var(--color-text);
             font-size: 16px;
@@ -159,8 +159,8 @@
         .form-control:focus {
             outline: none;
             border-color: var(--color-primary);
-            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.1);
-            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background: rgba(255, 255, 255, 0.95);
         }
 
         textarea.form-control {
@@ -184,7 +184,7 @@
         }
 
         select.form-control option {
-            background: var(--color-surface);
+            background: #ffffff;
             color: var(--color-text);
         }
 
@@ -192,7 +192,7 @@
         select.form-control optgroup {
             color: var(--color-text);
             font-weight: 600;
-            background: var(--color-surface);
+            background: #ffffff;
         }
 
         /* 确保在所有浏览器中 optgroup 标签可见 */
@@ -200,15 +200,15 @@
             color: var(--color-text);
         }
 
-        /* 暗色主题下的下拉箭头 */
+        /* 浅色主题下的下拉箭头 */
         select.form-control {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23f1f5f9' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
         }
 
         /* Firefox 专用样式 */
         @-moz-document url-prefix() {
             select.form-control {
-                background-color: rgba(255, 255, 255, 0.05);
+                background-color: rgba(255, 255, 255, 0.8);
             }
         }
 
@@ -216,7 +216,7 @@
             display: block;
             margin-top: var(--spacing-xs);
             font-size: 14px;
-            color: #cbd5e1;
+            color: #64748b;
         }
 
         .prompt-info {
